@@ -872,10 +872,10 @@
             </tr>
             <tr class="highlight-row">
               <td class="row-label" data-i18n="read">Reading</td>
-              <td><input type="number" id="rx_od_read_sph" step="0.25" placeholder="—" oninput="onRxChange()"></td>
+              <td><input type="number" id="rx_od_read_sph" step="0.25" placeholder="—" oninput="onRxChange();autoFillReadingCyl('od')"></td>
               <td><input type="number" id="rx_od_read_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_od_read_cyl','rx_od_read_axis')"></td>
               <td><input type="number" id="rx_od_read_axis" step="1" min="0" max="180" placeholder="—"></td>
-              <td><input type="number" id="rx_os_read_sph" step="0.25" placeholder="—" oninput="onRxChange()"></td>
+              <td><input type="number" id="rx_os_read_sph" step="0.25" placeholder="—" oninput="onRxChange();autoFillReadingCyl('os')"></td>
               <td><input type="number" id="rx_os_read_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_os_read_cyl','rx_os_read_axis')"></td>
               <td><input type="number" id="rx_os_read_axis" step="1" min="0" max="180" placeholder="—"></td>
             </tr>
@@ -906,29 +906,29 @@
           <thead>
             <tr>
               <th style="text-align:left;padding-left:0"></th>
-              <th data-i18n="meas1">Meas. 1</th><th data-i18n="meas2">Meas. 2</th><th data-i18n="meas3">Meas. 3</th>
-              <th data-i18n="halfPD" style="background:var(--green-mid)">Half PD</th>
+              <th colspan="3" style="background:var(--green-mid);text-align:center" data-i18n="rightEyeShort">Right Eye</th>
+              <th colspan="3" style="background:var(--green-mid);text-align:center" data-i18n="leftEyeShort">Left Eye</th>
+              <th colspan="3" style="background:var(--green-deep);text-align:center" data-i18n="totalIPD">Total</th>
+            </tr>
+            <tr>
+              <th style="text-align:left;padding-left:0"></th>
+              <th data-i18n="meas1">1°</th><th data-i18n="meas2">2°</th><th data-i18n="meas3">3°</th>
+              <th data-i18n="meas1">1°</th><th data-i18n="meas2">2°</th><th data-i18n="meas3">3°</th>
+              <th data-i18n="meas1">1°</th><th data-i18n="meas2">2°</th><th data-i18n="meas3">3°</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="row-label" data-i18n="rightEyeShort">Right Eye</td>
+              <td class="row-label" data-i18n="measLabel">meas.</td>
               <td><input type="number" id="ipd_r1" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
               <td><input type="number" id="ipd_r2" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
               <td><input type="number" id="ipd_r3" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
-              <td id="ipd_r_avg" style="font-weight:600;background:var(--green-pale)">—</td>
-            </tr>
-            <tr>
-              <td class="row-label" data-i18n="leftEyeShort">Left Eye</td>
               <td><input type="number" id="ipd_l1" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
               <td><input type="number" id="ipd_l2" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
               <td><input type="number" id="ipd_l3" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
-              <td id="ipd_l_avg" style="font-weight:600;background:var(--green-pale)">—</td>
-            </tr>
-            <tr class="ipd-total">
-              <td class="row-label" data-i18n="totalIPD">Total IPD</td>
-              <td colspan="3" style="text-align:center;font-size:12px;color:var(--text-light)" data-i18n="totalIPDHint">Right Half PD + Left Half PD</td>
-              <td id="ipd_total" style="font-size:15px">—</td>
+              <td id="ipd_t1" class="ipd-total">—</td>
+              <td id="ipd_t2" class="ipd-total">—</td>
+              <td id="ipd_t3" class="ipd-total">—</td>
             </tr>
           </tbody>
         </table>
@@ -1065,6 +1065,7 @@ const LANG = {
     dist: 'Distance', inter: 'Intermediate', read: 'Reading', add: 'ADD',
     rxNote: 'ⓘ Please attach original prescription or fill above. Values also apply to the optical system.',
     halfPD: 'Half PD', totalIPDHint: 'Right Half PD + Left Half PD',
+    measLabel: 'meas.',
     meas1: 'Meas. 1', meas2: 'Meas. 2', meas3: 'Meas. 3',
     rightEyeShort: 'Right Eye', leftEyeShort: 'Left Eye', totalIPD: 'Total IPD (avg)',
     ipdNote: 'ⓘ Per eye: 2 of 3 measurements must match, max 0.5mm difference allowed.',
@@ -1109,6 +1110,7 @@ const LANG = {
     dist: '遠距', inter: '中距', read: '近距', add: '加光度',
     rxNote: 'ⓘ 請附上原始處方單或填寫上方表格。數值同時用於光學系統設定。',
     halfPD: 'Half PD', totalIPDHint: '右眼 Half PD + 左眼 Half PD',
+    measLabel: '測量',
     meas1: '量測 1', meas2: '量測 2', meas3: '量測 3',
     rightEyeShort: '右眼', leftEyeShort: '左眼', totalIPD: 'IPD 總值（平均）',
     ipdNote: 'ⓘ 每眼：三次量測中需有至少2次相同數值，且最大差值 ≤ 0.5mm。以重複出現的數值作為最終 Half PD。',
@@ -1152,6 +1154,7 @@ function setLang(l) {
     }
   });
   onRxChange(); calcIPD();
+  updateOpticRowVisibility();
 }
 const t = key => LANG[currentLang][key] || key;
 
@@ -1333,11 +1336,11 @@ let selectedHeadlight = null;
 const FRAME_COMPAT = {
   'Look':               ['Galilean'],
   'Cool':               ['Galilean'],
-  'Techne 2025':        ['Galilean', 'Prismatic'],
-  'Techne [Old]':       ['Galilean', 'Prismatic'],
-  'Techne RX [Old]':    ['Galilean', 'Prismatic'],
-  'Ash 55-17':          ['Galilean', 'Prismatic'],
-  'Ash 53-17':          ['Galilean', 'Prismatic'],
+  'Techne 2025':        ['Galilean', 'Prismatic', 'Ergo'],
+  'Techne [Old]':       ['Galilean', 'Prismatic', 'Ergo'],
+  'Techne RX [Old]':    ['Galilean', 'Prismatic', 'Ergo'],
+  'Ash 55-17':          ['Galilean', 'Prismatic', 'Ergo'],
+  'Ash 53-17':          ['Galilean', 'Prismatic', 'Ergo'],
   'ITA':                ['Galilean', 'Prismatic', 'Ergo'],
   'ITA - Extended Fit': ['Galilean', 'Prismatic', 'Ergo'],
   'ONE':                ['Galilean', 'Prismatic', 'Ergo'],
@@ -1464,6 +1467,27 @@ function onRxChange() {
     const lt = document.querySelector('input[name=lens_type]:checked');
     const needsRx = lt && lt.value !== 'neutral' && lt.value !== 'neutral_cl';
     ergoHint.style.display = (isErgo && needsRx) ? 'block' : 'none';
+  }
+}
+
+function autoFillReadingCyl(eye) {
+  // Only auto-fill when Ergo is selected
+  if (!selectedOptic || selectedOptic.type !== 'Ergo') return;
+
+  const readSph = document.getElementById(`rx_${eye}_read_sph`).value;
+  if (!readSph) return; // only fill when reading SPH is entered
+
+  const distCyl  = document.getElementById(`rx_${eye}_dist_cyl`).value;
+  const distAxis = document.getElementById(`rx_${eye}_dist_axis`).value;
+  const readCylEl  = document.getElementById(`rx_${eye}_read_cyl`);
+  const readAxisEl = document.getElementById(`rx_${eye}_read_axis`);
+
+  // Only auto-fill if reading CYL/AXIS are still empty
+  if (distCyl && !readCylEl.value) {
+    readCylEl.value = distCyl;
+  }
+  if (distAxis && !readAxisEl.value) {
+    readAxisEl.value = distAxis;
   }
 }
 
@@ -1670,49 +1694,46 @@ function validateIPDEye(vals, eyeLabel) {
 }
 
 function calcIPD() {
-  const rVals = ['ipd_r1','ipd_r2','ipd_r3'].map(id => parseFloat(document.getElementById(id).value)).filter(v => !isNaN(v));
-  const lVals = ['ipd_l1','ipd_l2','ipd_l3'].map(id => parseFloat(document.getElementById(id).value)).filter(v => !isNaN(v));
+  const r1 = parseFloat(document.getElementById('ipd_r1').value);
+  const r2 = parseFloat(document.getElementById('ipd_r2').value);
+  const r3 = parseFloat(document.getElementById('ipd_r3').value);
+  const l1 = parseFloat(document.getElementById('ipd_l1').value);
+  const l2 = parseFloat(document.getElementById('ipd_l2').value);
+  const l3 = parseFloat(document.getElementById('ipd_l3').value);
 
+  const rVals = [r1,r2,r3].filter(v => !isNaN(v));
+  const lVals = [l1,l2,l3].filter(v => !isNaN(v));
+
+  // Calculate 3 totals (each meas pair R+L)
+  const t1El = document.getElementById('ipd_t1');
+  const t2El = document.getElementById('ipd_t2');
+  const t3El = document.getElementById('ipd_t3');
+
+  const t1 = (!isNaN(r1) && !isNaN(l1)) ? (r1+l1).toFixed(1) : '—';
+  const t2 = (!isNaN(r2) && !isNaN(l2)) ? (r2+l2).toFixed(1) : '—';
+  const t3 = (!isNaN(r3) && !isNaN(l3)) ? (r3+l3).toFixed(1) : '—';
+  t1El.textContent = t1;
+  t2El.textContent = t2;
+  t3El.textContent = t3;
+
+  // Validation (still needed for export check)
   const rLabel = currentLang === 'zh' ? '右眼' : 'Right Eye';
   const lLabel = currentLang === 'zh' ? '左眼' : 'Left Eye';
-
   const rResult = rVals.length >= 2 ? validateIPDEye(rVals, rLabel) : null;
   const lResult = lVals.length >= 2 ? validateIPDEye(lVals, lLabel) : null;
 
-  const rAvgStr = rResult ? String(rResult.avg) : '—';
-  const lAvgStr = lResult ? String(lResult.avg) : '—';
-  // Total only shown when BOTH eyes have valid Half PD
+  // Color-code total cells based on validation
   const bothValid = rResult && lResult && rResult.valid && lResult.valid;
-  const total = bothValid ? (rResult.avg + lResult.avg).toFixed(1) : '—';
+  const color = bothValid ? 'var(--ok-text)' : (rResult || lResult ? 'var(--warn-text)' : '');
+  [t1El, t2El, t3El].forEach(el => { el.style.color = color; el.style.fontWeight = '600'; });
 
-  // Color-code the Half PD cells
-  const rAvgEl = document.getElementById('ipd_r_avg');
-  const lAvgEl = document.getElementById('ipd_l_avg');
-  const totalEl = document.getElementById('ipd_total');
-
-  function styleAvgCell(el, result, valStr) {
-    el.textContent = valStr;
-    el.style.color = '';
-    el.style.fontWeight = '600';
-    if (result && !result.valid) {
-      el.style.color = 'var(--warn-text)';
-    } else if (result && result.valid) {
-      el.style.color = 'var(--ok-text)';
-    }
-  }
-
-  styleAvgCell(rAvgEl, rResult, rAvgStr);
-  styleAvgCell(lAvgEl, lResult, lAvgStr);
-  totalEl.textContent = total;
-  totalEl.style.color = bothValid ? 'var(--ok-text)' : (rResult || lResult ? 'var(--warn-text)' : '');
-
-  // Collect all measurement errors
+  // Collect measurement errors
   const measErrors = [
     ...(rResult ? rResult.errors : []),
     ...(lResult ? lResult.errors : []),
   ];
 
-  // PD range check (only if measurements are valid)
+  // PD range check using validated Half PD (avg of matched values)
   const frame = document.getElementById('f_frame').value;
   const pdWarnEl = document.getElementById('pd-warning');
   const pdFeasEl = document.getElementById('feas-pd');
@@ -1725,7 +1746,6 @@ function calcIPD() {
   }
 
   if (!frame || !limits) {
-    // Show measurement errors if any, but no PD range check
     if (measErrors.length) {
       pdWarnEl.className = 'pd-warning warn show';
       pdWarnEl.innerHTML = measErrors.map(e => `⚠ ${e}`).join('<br>');
@@ -1743,9 +1763,7 @@ function calcIPD() {
   if (lInRange === false) pdErrors.push(currentLang === 'zh' ? `左眼 Half PD ${lResult.avg}mm 超出 ${frame} 限制（${limits[0]}–${limits[1]}mm）` : `Left Eye Half PD ${lResult.avg}mm outside ${frame} limits (${limits[0]}–${limits[1]}mm)`);
 
   const allErrors = [...measErrors, ...pdErrors];
-  const rMeasValid = rResult ? rResult.valid : true;
-  const lMeasValid = lResult ? lResult.valid : true;
-  const allValid = rMeasValid && lMeasValid && pdErrors.length === 0;
+  const allValid = (rResult ? rResult.valid : true) && (lResult ? lResult.valid : true) && pdErrors.length === 0;
 
   if (allErrors.length > 0) {
     pdFeasEl.innerHTML = `<span class="badge warn">✗ Error</span>`;
@@ -2023,7 +2041,7 @@ async function exportXLSX() {
   // 本機測試：python app.py 後自動用 localhost
   // 部署後：把下面改成你的 Render URL，例如：
   // const API_URL = 'https://univet-order-export.onrender.com';
-  const API_URL = 'https://univet-order-export.onrender.com';
+  const API_URL = 'http://localhost:7788';
 
   // Try Python server (exact format + PDF)
   try {
