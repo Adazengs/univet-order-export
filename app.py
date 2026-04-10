@@ -7,7 +7,11 @@ from openpyxl import load_workbook
 app = Flask(__name__)
 CORS(app)
 
-TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '2026 ORDER FORM (eng) rev0.xlsx')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_PATH = os.path.join(BASE_DIR, '2026 ORDER FORM (eng) rev0.xlsx')
+# Fallback: check current working directory
+if not os.path.exists(TEMPLATE_PATH):
+    TEMPLATE_PATH = os.path.join(os.getcwd(), '2026 ORDER FORM (eng) rev0.xlsx')
 
 def fill_template(data):
     wb = load_workbook(TEMPLATE_PATH)
@@ -18,7 +22,9 @@ def fill_template(data):
         ws[addr] = val
 
     # Customer info
-    w('D6',  data.get('date',''))
+    date_val = data.get('date','')
+    if date_val:
+        ws['D6'] = str(date_val)  # force string to prevent Excel treating as number
     w('D7',  data.get('fname',''))
     w('E8',  data.get('lname',''))
     w('E9',  data.get('yob',''))
