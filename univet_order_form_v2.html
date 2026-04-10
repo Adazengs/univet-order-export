@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Univet Order Form 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #0a3d2e;
+    --green-mid: #155c44;
+    --green-light: #1e7a57;
+    --green-accent: #2da870;
+    --green-pale: #e8f4ef;
+    --green-border: #c5dfd4;
+    --white: #ffffff;
+    --off-white: #f7faf8;
+    --text-dark: #0d1f18;
+    --text-mid: #3a5a4a;
+    --text-light: #6b8c7c;
+    --warn-bg: #fff3e0;
+    --warn-border: #e65100;
+    --warn-text: #bf360c;
+    --ok-bg: #e8f5e9;
+    --ok-border: #2e7d32;
+    --ok-text: #1b5e20;
+    --error-red: #c62828;
+    --shadow: 0 2px 16px rgba(10,61,46,0.10);
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--green-deep);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo-v {
+    width: 38px;
+    height: 28px;
+  }
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .header-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .lang-toggle {
+    display: flex;
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .lang-btn {
+    padding: 6px 16px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    background: none;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .lang-btn.active {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* SECTIONS */
+  .section {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--green-border);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--green-deep);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.3);
+    line-height: 1;
+    min-width: 28px;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .section-body {
+    padding: 24px;
+  }
+
+  /* FORM GRID */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+  }
+  .form-grid.three-col {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .span2 { grid-column: span 2; }
+  .span3 { grid-column: span 3; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-mid);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  label .req { color: var(--error-red); margin-left: 2px; font-weight: 700; font-size: 13px; }
+  input[type=text], input[type=email], input[type=number], select, textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--green-border);
+    border-radius: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--green-light);
+    box-shadow: 0 0 0 3px rgba(30,122,87,0.12);
+  }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23155c44' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer; }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* RADIO / CHECKBOX GROUPS */
+  .radio-group, .check-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .radio-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 13px;
+    border: 1.5px solid var(--green-border);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-mid);
+    background: var(--white);
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .radio-chip input { display: none; }
+  .radio-chip:hover { border-color: var(--green-accent); color: var(--green-mid); }
+  .radio-chip.selected {
+    background: var(--green-deep);
+    border-color: var(--green-deep);
+    color: #fff;
+  }
+
+  /* PRESCRIPTION TABLE */
+  .rx-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .rx-table th {
+    background: var(--green-deep);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .rx-table th.eye-header {
+    background: var(--green-mid);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .rx-table td {
+    padding: 6px 4px;
+    text-align: center;
+    border-bottom: 1px solid var(--green-pale);
+  }
+  .rx-table tr:last-child td { border-bottom: none; }
+  .rx-table td.row-label {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding-left: 0;
+    white-space: nowrap;
+  }
+  .rx-table input[type=number], .rx-table input[type=text] {
+    width: 80px;
+    padding: 6px 8px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* FEASIBILITY PANEL (right sidebar) */
+  .sidebar { position: sticky; top: 80px; }
+  .feasibility-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 2px solid var(--green-border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .feas-header {
+    background: var(--green-deep);
+    padding: 16px 20px;
+  }
+  .feas-header h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .feas-header p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+  .feas-body { padding: 20px; }
+
+  .feas-status {
+    padding: 14px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .feas-status.ok { background: var(--ok-bg); border: 1.5px solid var(--ok-border); }
+  .feas-status.warn { background: var(--warn-bg); border: 1.5px solid var(--warn-border); }
+  .feas-status.neutral { background: var(--green-pale); border: 1.5px solid var(--green-border); }
+  .feas-icon { font-size: 20px; margin-top: 1px; flex-shrink: 0; }
+  .feas-status.ok .feas-icon { color: var(--ok-border); }
+  .feas-status.warn .feas-icon { color: var(--warn-border); }
+  .feas-status.neutral .feas-icon { color: var(--green-light); }
+  .feas-label { font-size: 13px; font-weight: 500; }
+  .feas-status.ok .feas-label { color: var(--ok-text); }
+  .feas-status.warn .feas-label { color: var(--warn-text); }
+  .feas-status.neutral .feas-label { color: var(--text-mid); }
+  .feas-detail { font-size: 12px; margin-top: 3px; color: inherit; opacity: 0.8; }
+
+  .feas-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--green-pale);
+    font-size: 13px;
+  }
+  .feas-row:last-child { border-bottom: none; }
+  .feas-row-label { color: var(--text-mid); }
+  .feas-row-value { font-weight: 500; color: var(--text-dark); }
+  .badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge.ok { background: var(--ok-bg); color: var(--ok-text); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn-text); }
+  .badge.na { background: var(--green-pale); color: var(--text-light); }
+
+  /* EXPORT BUTTON */
+  .export-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--green-deep);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .export-btn:hover { background: var(--green-mid); }
+  .export-btn:active { transform: scale(0.98); }
+  .export-btn svg { width: 18px; height: 18px; }
+
+  /* IPD TABLE */
+  .ipd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .ipd-table th {
+    background: var(--green-deep);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 9px 8px;
+    text-align: center;
+  }
+  .ipd-table td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--green-pale); }
+  .ipd-table td.row-label { text-align: left; font-size: 12px; color: var(--text-mid); font-weight: 500; text-transform: uppercase; padding-left: 0; }
+  .ipd-table input { width: 70px; padding: 6px 8px; font-size: 13px; text-align: center; }
+  .ipd-total { background: var(--green-pale); font-weight: 600; color: var(--green-deep); }
+
+  /* PD WARNING */
+  .pd-warning {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 5px;
+    font-size: 12px;
+    display: none;
+  }
+  .pd-warning.show { display: block; }
+  .pd-warning.ok { background: var(--ok-bg); color: var(--ok-text); border: 1px solid var(--ok-border); }
+  .pd-warning.warn { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border); }
+
+  /* WORKING DISTANCE GRID */
+  .wd-grid {
+    display: grid;
+    grid-template-columns: 200px repeat(7, 1fr);
+    gap: 0;
+    border: 1px solid var(--green-border);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12px;
+  }
+  .wd-cell {
+    padding: 8px 4px;
+    text-align: center;
+    border-bottom: 1px solid var(--green-pale);
+    border-right: 1px solid var(--green-pale);
+  }
+  .wd-cell:nth-child(8n) { border-right: none; }
+  .wd-header { background: var(--green-deep); color: #fff; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .wd-type { background: var(--green-pale); font-weight: 500; color: var(--text-mid); text-align: left; padding-left: 10px; }
+  .wd-check { width: 18px; height: 18px; cursor: pointer; accent-color: var(--green-deep); }
+
+  /* NOTES */
+  .note-box {
+    background: var(--green-pale);
+    border-left: 3px solid var(--green-light);
+    padding: 10px 14px;
+    border-radius: 0 5px 5px 0;
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--green-border); margin: 20px 0; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+  }
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid.three-col { grid-template-columns: 1fr 1fr; }
+    .header-title { font-size: 17px; }
+  }
+
+  /* Subtlety: animate feasibility change */
+  .feas-status { transition: background 0.3s, border-color 0.3s; }
+  .badge { transition: background 0.3s; }
+
+  .section-subhead {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+  .section-subhead:first-child { margin-top: 0; }
+
+  .highlight-row td { background: rgba(30,122,87,0.04); }
+
+  /* Field error state */
+  input.field-error, select.field-error {
+    border-color: var(--error-red) !important;
+    background: #fff5f5 !important;
+  }
+  .field-error-msg {
+    font-size: 11px;
+    color: var(--error-red);
+    margin-top: 3px;
+    display: none;
+  }
+  .field-error-msg.show { display: block; }
+
+  /* Section error highlight */
+  .section.has-error {
+    border-color: var(--error-red);
+    box-shadow: 0 0 0 2px rgba(198,40,40,0.10);
+  }
+  .section.has-error .section-header {
+    background: #b71c1c;
+  }
+
+  /* Validation modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(10,61,46,0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 10px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  .modal-header {
+    background: #b71c1c;
+    padding: 16px 20px;
+    color: #fff;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+  .modal-body { padding: 20px; max-height: 55vh; overflow-y: auto; }
+  .modal-error-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--green-pale);
+    font-size: 13px;
+    color: var(--text-dark);
+    cursor: pointer;
+  }
+  .modal-error-item:last-child { border-bottom: none; }
+  .modal-error-item:hover { color: var(--error-red); }
+  .modal-error-icon { color: var(--error-red); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .modal-error-text { line-height: 1.5; }
+  .modal-footer {
+    padding: 14px 20px;
+    background: var(--off-white);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .modal-btn {
+    padding: 9px 20px;
+    border-radius: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s;
+  }
+  .modal-btn-close {
+    background: var(--green-deep);
+    color: #fff;
+  }
+  .modal-btn-close:hover { background: var(--green-mid); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <svg class="logo-v" viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 4L20 40L30 18L40 40L60 4" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div>
+        <div class="header-title" data-i18n="title">Univet Order Form</div>
+        <div class="header-sub" data-i18n="subtitle">2026 — RX Feasibility Check</div>
+      </div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('zh')">中文</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <!-- LEFT: FORM -->
+  <div class="form-col">
+
+    <!-- SECTION 1: CUSTOMER INFO -->
+    <div class="section" id="sec-customer">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title" data-i18n="s1">Customer Information</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="field">
+            <label data-i18n="date">Date <span class="req">*</span></label>
+            <input type="text" id="f_date" placeholder="YYYY/MM/DD">
+          </div>
+          <div class="field">
+            <label data-i18n="agent">Sales Agent <span class="req">*</span></label>
+            <input type="text" id="f_agent">
+          </div>
+          <div class="field">
+            <label data-i18n="fname">First Name <span class="req">*</span></label>
+            <input type="text" id="f_fname">
+          </div>
+          <div class="field">
+            <label data-i18n="lname">Last Name <span class="req">*</span></label>
+            <input type="text" id="f_lname">
+          </div>
+          <div class="field">
+            <label data-i18n="yob">Year of Birth (YYYY) <span class="req">*</span></label>
+            <input type="number" id="f_yob" placeholder="1985" min="1940" max="2005" oninput="calcAge()">
+          </div>
+          <div class="field">
+            <label data-i18n="age">Age</label>
+            <input type="text" id="f_age" readonly style="background:var(--green-pale);color:var(--text-mid);">
+          </div>
+          <div class="field">
+            <label data-i18n="profession">Field of Profession <span class="req">*</span></label>
+            <select id="f_profession" onchange="updateSpecialty()">
+              <option value="">— Select —</option>
+              <option value="Dentistry">Dentistry</option>
+              <option value="Medical">Medical</option>
+              <option value="Veterinary">Veterinary</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="specialty">Main Specialty <span class="req">*</span></label>
+            <select id="f_specialty">
+              <option value="">— Select profession first —</option>
+            </select>
+          </div>
+          <div class="field span2">
+            <label data-i18n="address">Address <span class="req">*</span></label>
+            <input type="text" id="f_address">
+          </div>
+          <div class="field">
+            <label data-i18n="town">Town <span class="req">*</span></label>
+            <input type="text" id="f_town">
+          </div>
+          <div class="field">
+            <label data-i18n="country">Country <span class="req">*</span></label>
+            <input type="text" id="f_country">
+          </div>
+          <div class="field">
+            <label data-i18n="tel">Telephone <span class="req">*</span></label>
+            <input type="text" id="f_tel">
+          </div>
+          <div class="field">
+            <label data-i18n="email">Email <span class="req">*</span></label>
+            <input type="email" id="f_email">
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text-light);margin-top:14px"><span style="color:var(--error-red);font-weight:700">*</span> <span data-i18n="reqNote">Required field</span></p>
+      </div>
+    </div>
+
+    <!-- SECTION 2: OPTICS SELECTION -->
+    <div class="section" id="sec-optics">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title" data-i18n="s2">Magnification & Working Distance</span>
+      </div>
+      <div class="section-body">
+        <p class="section-subhead" data-i18n="selectOptic">Select Optic Type & Working Distance</p>
+        <div class="wd-grid" id="wd-grid">
+          <!-- headers -->
+          <div class="wd-cell wd-header" style="text-align:left;padding-left:10px;" data-i18n="product">Product</div>
+          <div class="wd-cell wd-header">300</div>
+          <div class="wd-cell wd-header">350</div>
+          <div class="wd-cell wd-header">400</div>
+          <div class="wd-cell wd-header">450</div>
+          <div class="wd-cell wd-header">500</div>
+          <div class="wd-cell wd-header">550</div>
+          <div class="wd-cell wd-header">600+</div>
+          <!-- Galilean -->
+          <div class="wd-cell wd-type" colspan="1">Galilean 2.0x Pro HD</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.0x|300" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.0x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.0x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.0x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.0x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="opacity:0.3">—</div><div class="wd-cell" style="opacity:0.3">—</div>
+
+          <div class="wd-cell wd-type">Galilean 2.5x Pro HD</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.5x|300" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.5x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.5x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.5x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.5x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.5x|550" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|2.5x|600" onchange="onOpticChange()"></div>
+
+          <div class="wd-cell wd-type">Galilean 3.0x Pro HD</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.0x|300" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.0x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.0x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.0x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.0x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.0x|550" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.0x|600" onchange="onOpticChange()"></div>
+
+          <div class="wd-cell wd-type">Galilean 3.5x Pro HD²</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.5x|300" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.5x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.5x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.5x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Galilean|3.5x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="opacity:0.3">—</div><div class="wd-cell" style="opacity:0.3">—</div>
+
+          <!-- Prismatic -->
+          <div class="wd-cell wd-type">Prismatic 3.5x Ultra HD</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|3.5x|300" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|3.5x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|3.5x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|3.5x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|3.5x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="opacity:0.3">—</div><div class="wd-cell" style="opacity:0.3">—</div>
+
+          <div class="wd-cell wd-type">Prismatic 4.0x Ultra HD</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|4.0x|300" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|4.0x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|4.0x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|4.0x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|4.0x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="opacity:0.3">—</div><div class="wd-cell" style="opacity:0.3">—</div>
+
+          <div class="wd-cell wd-type">Prismatic 5.0x Ultra HD</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|5.0x|300" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|5.0x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|5.0x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|5.0x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Prismatic|5.0x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="opacity:0.3">—</div><div class="wd-cell" style="opacity:0.3">—</div>
+
+          <!-- Ergo Advanced -->
+          <div class="wd-cell wd-type">Ergo Advanced 3.5x</div>
+          <div class="wd-cell" style="opacity:0.3">—</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|3.5x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|3.5x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|3.5x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|3.5x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|3.5x|550" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|3.5x|600" onchange="onOpticChange()"></div>
+
+          <div class="wd-cell wd-type">Ergo Advanced 4.5x</div>
+          <div class="wd-cell" style="opacity:0.3">—</div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|4.5x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|4.5x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|4.5x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|4.5x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|4.5x|550" onchange="onOpticChange()"></div>
+          <div class="wd-cell"><input type="radio" class="wd-check" name="optic" value="Ergo|4.5x|600" onchange="onOpticChange()"></div>
+
+          <div class="wd-cell wd-type" style="border-bottom:none">Ergo Advanced 5.7x</div>
+          <div class="wd-cell" style="opacity:0.3;border-bottom:none">—</div>
+          <div class="wd-cell" style="border-bottom:none"><input type="radio" class="wd-check" name="optic" value="Ergo|5.7x|350" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="border-bottom:none"><input type="radio" class="wd-check" name="optic" value="Ergo|5.7x|400" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="border-bottom:none"><input type="radio" class="wd-check" name="optic" value="Ergo|5.7x|450" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="border-bottom:none"><input type="radio" class="wd-check" name="optic" value="Ergo|5.7x|500" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="border-bottom:none"><input type="radio" class="wd-check" name="optic" value="Ergo|5.7x|550" onchange="onOpticChange()"></div>
+          <div class="wd-cell" style="border-bottom:none"><input type="radio" class="wd-check" name="optic" value="Ergo|5.7x|600" onchange="onOpticChange()"></div>
+        </div>
+
+        <div class="note-box" data-i18n="wdNote">
+          ⓘ 600/700mm available only for 2.5x & 3.0x Galilean (ITA & ONE frames). Ergo Advanced 700mm: Plano only.
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: FRAME -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title" data-i18n="s3">Frame Selection</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="field">
+            <label data-i18n="frame">Frame Model <span class="req">*</span></label>
+            <select id="f_frame" onchange="onFrameChange()">
+              <option value="">— Select —</option>
+              <option value="Look">Look</option>
+              <option value="Cool">Cool</option>
+              <option value="Techne 2025">Techne 2025 – Regular Fit</option>
+              <option value="Techne [Old]">Techne [Old]</option>
+              <option value="Techne RX [Old]">Techne RX [Old]</option>
+              <option value="Ash 55-17">Ash 55-17</option>
+              <option value="Ash 53-17">Ash 53-17</option>
+              <option value="ITA">ITA</option>
+              <option value="ITA - Extended Fit">ITA – Extended Fit</option>
+              <option value="ONE">ONE</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="color">Frame Color <span class="req">*</span></label>
+            <select id="f_color">
+              <option value="">— Select frame first —</option>
+            </select>
+          </div>
+        </div>
+        <div id="frame-optic-warn" style="display:none;margin-top:12px;padding:10px 14px;background:var(--warn-bg);border:1.5px solid var(--warn-border);border-radius:5px;font-size:13px;color:var(--warn-text);line-height:1.6;"></div>
+        <hr class="divider">
+        <div class="form-grid">
+          <div class="field">
+            <label data-i18n="customCase">Case Customization (max 17 chars)</label>
+            <input type="text" id="f_custom_case" maxlength="17">
+          </div>
+          <div class="field">
+            <label data-i18n="customFrame">Frame Customization (max 17 chars)</label>
+            <input type="text" id="f_custom_frame" maxlength="17">
+          </div>
+          <div class="field span2">
+            <label data-i18n="note">Note</label>
+            <textarea id="f_note" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: PRESCRIPTION -->
+    <div class="section" id="sec-rx">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title" data-i18n="s4">Prescription (RX)</span>
+      </div>
+      <div class="section-body">
+        <p class="section-subhead" data-i18n="lensType">Correction Type</p>
+        <div class="radio-group" id="lens-type-group">
+          <label class="radio-chip" onclick="selectChip(this,'lens_type','neutral')"><input type="radio" name="lens_type" value="neutral"><span data-i18n="neutral">Neutral</span></label>
+          <label class="radio-chip" onclick="selectChip(this,'lens_type','neutral_cl')"><input type="radio" name="lens_type" value="neutral_cl"><span data-i18n="neutralCL">Neutral (Contact Lenses)</span></label>
+          <label class="radio-chip" onclick="selectChip(this,'lens_type','distance')"><input type="radio" name="lens_type" value="distance"><span data-i18n="distance">Distance</span></label>
+          <label class="radio-chip" onclick="selectChip(this,'lens_type','intermediate')"><input type="radio" name="lens_type" value="intermediate"><span data-i18n="intermediate">Intermediate</span></label>
+          <label class="radio-chip" onclick="selectChip(this,'lens_type','reading')"><input type="radio" name="lens_type" value="reading"><span data-i18n="reading">Reading</span></label>
+          <label class="radio-chip" onclick="selectChip(this,'lens_type','bifocal')"><input type="radio" name="lens_type" value="bifocal"><span data-i18n="bifocal">Bifocal</span></label>
+        </div>
+
+        <hr class="divider">
+
+        <div id="ergo-reading-hint" style="display:none;margin-bottom:12px;padding:10px 14px;background:var(--warn-bg);border:1.5px solid var(--warn-border);border-radius:5px;font-size:13px;color:var(--warn-text)">
+          ⚠ <strong>Ergo Advanced</strong>：<span data-i18n="ergoReadingHint">Reading SPH is mandatory for both eyes when using Ergo Advanced.</span>
+        </div>
+        <table class="rx-table">
+          <thead>
+            <tr>
+              <th style="width:90px;background:var(--green-mid)"></th>
+              <th class="eye-header" colspan="3" data-i18n="rightEye">RIGHT EYE (OD)</th>
+              <th class="eye-header" colspan="3" data-i18n="leftEye">LEFT EYE (OS)</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th data-i18n="sph">SPH</th><th data-i18n="cyl">CYL</th><th data-i18n="axis">AXIS</th>
+              <th data-i18n="sph">SPH</th><th data-i18n="cyl">CYL</th><th data-i18n="axis">AXIS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight-row">
+              <td class="row-label" data-i18n="dist">Distance</td>
+              <td><input type="number" id="rx_od_dist_sph" step="0.25" placeholder="0.00" oninput="onRxChange()"></td>
+              <td><input type="number" id="rx_od_dist_cyl" step="0.25" placeholder="0.00" oninput="onRxChange()" onblur="checkCylAxis('rx_od_dist_cyl','rx_od_dist_axis')"></td>
+              <td><input type="number" id="rx_od_dist_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_os_dist_sph" step="0.25" placeholder="0.00" oninput="onRxChange()"></td>
+              <td><input type="number" id="rx_os_dist_cyl" step="0.25" placeholder="0.00" oninput="onRxChange()" onblur="checkCylAxis('rx_os_dist_cyl','rx_os_dist_axis')"></td>
+              <td><input type="number" id="rx_os_dist_axis" step="1" min="0" max="180" placeholder="—"></td>
+            </tr>
+            <tr>
+              <td class="row-label" data-i18n="inter">Intermediate</td>
+              <td><input type="number" id="rx_od_int_sph" step="0.25" placeholder="—" oninput="onRxChange()"></td>
+              <td><input type="number" id="rx_od_int_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_od_int_cyl','rx_od_int_axis')"></td>
+              <td><input type="number" id="rx_od_int_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_os_int_sph" step="0.25" placeholder="—" oninput="onRxChange()"></td>
+              <td><input type="number" id="rx_os_int_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_os_int_cyl','rx_os_int_axis')"></td>
+              <td><input type="number" id="rx_os_int_axis" step="1" min="0" max="180" placeholder="—"></td>
+            </tr>
+            <tr class="highlight-row">
+              <td class="row-label" data-i18n="read">Reading</td>
+              <td><input type="number" id="rx_od_read_sph" step="0.25" placeholder="—" oninput="onRxChange()"></td>
+              <td><input type="number" id="rx_od_read_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_od_read_cyl','rx_od_read_axis')"></td>
+              <td><input type="number" id="rx_od_read_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_os_read_sph" step="0.25" placeholder="—" oninput="onRxChange()"></td>
+              <td><input type="number" id="rx_os_read_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_os_read_cyl','rx_os_read_axis')"></td>
+              <td><input type="number" id="rx_os_read_axis" step="1" min="0" max="180" placeholder="—"></td>
+            </tr>
+            <tr>
+              <td class="row-label" data-i18n="add">ADD</td>
+              <td><input type="number" id="rx_od_add" step="0.25" placeholder="—"></td>
+              <td colspan="2"></td>
+              <td><input type="number" id="rx_os_add" step="0.25" placeholder="—"></td>
+              <td colspan="2"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note-box" style="margin-top:14px" data-i18n="rxNote">
+          ⓘ Please attach original prescription or fill above. Values also apply to the optical system. Prescription required even for patients not using glasses in daily life.
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: IPD -->
+    <div class="section" id="sec-ipd">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title" data-i18n="s5">IPD Measurement</span>
+      </div>
+      <div class="section-body">
+        <table class="ipd-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding-left:0"></th>
+              <th data-i18n="meas1">Meas. 1</th><th data-i18n="meas2">Meas. 2</th><th data-i18n="meas3">Meas. 3</th>
+              <th data-i18n="halfPD" style="background:var(--green-mid)">Half PD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-label" data-i18n="rightEyeShort">Right Eye</td>
+              <td><input type="number" id="ipd_r1" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
+              <td><input type="number" id="ipd_r2" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
+              <td><input type="number" id="ipd_r3" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
+              <td id="ipd_r_avg" style="font-weight:600;background:var(--green-pale)">—</td>
+            </tr>
+            <tr>
+              <td class="row-label" data-i18n="leftEyeShort">Left Eye</td>
+              <td><input type="number" id="ipd_l1" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
+              <td><input type="number" id="ipd_l2" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
+              <td><input type="number" id="ipd_l3" step="0.5" min="20" max="45" oninput="calcIPD();this.classList.remove('field-error')"></td>
+              <td id="ipd_l_avg" style="font-weight:600;background:var(--green-pale)">—</td>
+            </tr>
+            <tr class="ipd-total">
+              <td class="row-label" data-i18n="totalIPD">Total IPD</td>
+              <td colspan="3" style="text-align:center;font-size:12px;color:var(--text-light)" data-i18n="totalIPDHint">Right Half PD + Left Half PD</td>
+              <td id="ipd_total" style="font-size:15px">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div id="pd-warning" class="pd-warning"></div>
+        <div class="note-box" style="margin-top:12px" data-i18n="ipdNote">
+          ⓘ Per eye: at least 2 of 3 measurements must be identical; max spread ≤ 0.5mm. The matching value is used as final Half PD.
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: DECLINATION & ACCESSORIES -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title" data-i18n="s6">Declination & Accessories</span>
+      </div>
+      <div class="section-body">
+        <p class="section-subhead" data-i18n="decl">Declination Angle (Optional)</p>
+        <div class="radio-group">
+          <label class="radio-chip" onclick="selectChip(this,'decl','18')"><input type="radio" name="decl" value="18"><span>18°</span></label>
+          <label class="radio-chip" onclick="selectChip(this,'decl','22')"><input type="radio" name="decl" value="22"><span>22°</span></label>
+          <label class="radio-chip selected" onclick="selectChip(this,'decl','MAX')"><input type="radio" name="decl" value="MAX" checked><span data-i18n="maxDecl">MAX (default)</span></label>
+        </div>
+        <hr class="divider">
+        <p class="section-subhead" data-i18n="headlight">Headlight</p>
+        <div style="font-size:12px;color:var(--text-light);margin-bottom:8px" data-i18n="accOptional">Optional — click to select, click again to deselect</div>
+        <div class="radio-group">
+          <label class="radio-chip" id="hl_lynx" onclick="toggleSingle(this,'headlight','LYNX')"><span>LYNX</span></label>
+          <label class="radio-chip" id="hl_lynxpro" onclick="toggleSingle(this,'headlight','LYNX PRO')"><span>LYNX PRO</span></label>
+          <label class="radio-chip" id="hl_eos" onclick="toggleSingle(this,'headlight','EOS Wireless')"><span>EOS Wireless</span></label>
+        </div>
+        <hr class="divider">
+        <p class="section-subhead" data-i18n="accessories">Accessories</p>
+        <div style="font-size:12px;color:var(--text-light);margin-bottom:8px" data-i18n="accOptional">Optional — click to select, click again to deselect</div>
+        <div class="check-group">
+          <label class="radio-chip" id="acc_701" onclick="toggleAcc(this,'701 Overloupes')"><span>701 Overloupes</span></label>
+          <label class="radio-chip" id="acc_710" onclick="toggleAcc(this,'710 Overloupes')"><span>710 Overloupes</span></label>
+          <label class="radio-chip" id="acc_antifog" onclick="toggleAcc(this,'Antifog cloth')"><span data-i18n="antifog">Antifog cloth</span></label>
+          <label class="radio-chip" id="acc_case" onclick="toggleAcc(this,'Case Loupe&Headlight')"><span data-i18n="loupeCase">Case (Loupe & Headlight)</span></label>
+          <label class="radio-chip" id="acc_magnetic" onclick="toggleAcc(this,'Custom Magnetic Adapter')"><span data-i18n="magAdapter">Custom Magnetic Adapter</span></label>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /form-col -->
+
+  <!-- RIGHT: SIDEBAR -->
+  <div class="sidebar">
+    <div class="feasibility-card">
+      <div class="feas-header">
+        <h3 data-i18n="feasCheck">RX Feasibility</h3>
+        <p data-i18n="feasSub">Real-time verification</p>
+      </div>
+      <div class="feas-body">
+        <!-- Main status -->
+        <div id="feas-main" class="feas-status neutral">
+          <div class="feas-icon">○</div>
+          <div>
+            <div class="feas-label" data-i18n="feasWaiting">Waiting for input</div>
+            <div class="feas-detail" data-i18n="feasWaitingSub">Fill in optic selection and prescription</div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div class="feas-row">
+          <span class="feas-row-label" data-i18n="opticSel">Optic Selected</span>
+          <span class="feas-row-value" id="feas-optic">—</span>
+        </div>
+        <div class="feas-row">
+          <span class="feas-row-label" data-i18n="wdSel">Working Distance</span>
+          <span class="feas-row-value" id="feas-wd">—</span>
+        </div>
+        <div class="feas-row">
+          <span class="feas-row-label" data-i18n="odRx">OD (Right) SPH/CYL</span>
+          <span class="feas-row-value" id="feas-od">—</span>
+        </div>
+        <div class="feas-row">
+          <span class="feas-row-label" data-i18n="osRx">OS (Left) SPH/CYL</span>
+          <span class="feas-row-value" id="feas-os">—</span>
+        </div>
+        <div class="feas-row">
+          <span class="feas-row-label" data-i18n="odResult">OD Result</span>
+          <span id="feas-od-result"><span class="badge na">—</span></span>
+        </div>
+        <div class="feas-row">
+          <span class="feas-row-label" data-i18n="osResult">OS Result</span>
+          <span id="feas-os-result"><span class="badge na">—</span></span>
+        </div>
+        <div class="feas-row">
+          <span class="feas-row-label" data-i18n="pdCheck">PD Check</span>
+          <span id="feas-pd"><span class="badge na">—</span></span>
+        </div>
+
+        <button class="export-btn" onclick="exportXLSX()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span data-i18n="exportBtn">Export Order (.xlsx)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div style="margin-top:16px;padding:14px 16px;background:var(--white);border-radius:var(--radius);border:1px solid var(--green-border);font-size:12px;color:var(--text-mid);">
+      <div style="font-weight:600;margin-bottom:8px;color:var(--text-dark)" data-i18n="legend">Legend</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge ok">✓ OK</span> <span data-i18n="legendOk">Within feasibility range</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge warn">✗ Out</span> <span data-i18n="legendOut">Outside feasibility range</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="badge na">—</span> <span data-i18n="legendNa">Not yet entered</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// LANGUAGE
+// ============================================================
+const LANG = {
+  en: {
+    title: 'Univet Order Form', subtitle: '2026 — RX Feasibility Check',
+    s1: 'Customer Information', s2: 'Magnification & Working Distance',
+    s3: 'Frame Selection', s4: 'Prescription (RX)', s5: 'IPD Measurement',
+    s6: 'Declination & Accessories',
+    date: 'Date', agent: 'Sales Agent', fname: 'First Name', lname: 'Last Name',
+    yob: 'Year of Birth (YYYY)', age: 'Age', profession: 'Field of Profession',
+    specialty: 'Main Specialty', address: 'Address', town: 'Town',
+    country: 'Country', tel: 'Telephone', email: 'Email',
+    selectOptic: 'Select Optic Type & Working Distance', product: 'Product',
+    wdNote: 'ⓘ 600/700mm available only for 2.5x & 3.0x Galilean (ITA & ONE frames). Ergo Advanced 700mm: Plano only.',
+    frame: 'Frame Model', color: 'Frame Color', customCase: 'Case Customization (max 17 chars)',
+    customFrame: 'Frame Customization (max 17 chars)', note: 'Note',
+    lensType: 'Correction Type',
+    neutral: 'Neutral', neutralCL: 'Neutral (Contact Lenses)', distance: 'Distance',
+    intermediate: 'Intermediate', reading: 'Reading', bifocal: 'Bifocal',
+    rightEye: 'RIGHT EYE (OD)', leftEye: 'LEFT EYE (OS)',
+    sph: 'SPH', cyl: 'CYL', axis: 'AXIS',
+    dist: 'Distance', inter: 'Intermediate', read: 'Reading', add: 'ADD',
+    rxNote: 'ⓘ Please attach original prescription or fill above. Values also apply to the optical system.',
+    halfPD: 'Half PD', totalIPDHint: 'Right Half PD + Left Half PD',
+    meas1: 'Meas. 1', meas2: 'Meas. 2', meas3: 'Meas. 3',
+    rightEyeShort: 'Right Eye', leftEyeShort: 'Left Eye', totalIPD: 'Total IPD (avg)',
+    ipdNote: 'ⓘ Per eye: 2 of 3 measurements must match, max 0.5mm difference allowed.',
+    decl: 'Declination Angle (Optional)', maxDecl: 'MAX (default)',
+    headlight: 'Headlight', accessories: 'Accessories',
+    antifog: 'Antifog cloth', loupeCase: 'Case (Loupe & Headlight)', magAdapter: 'Custom Magnetic Adapter',
+    accOptional: '可選 — 點擊選取，再次點擊取消',
+    reqNote: 'Required field',
+    ergoReadingHint: 'Reading SPH is mandatory for both eyes when using Ergo Advanced.',
+    feasWaiting: 'Waiting for input', feasWaitingSub: 'Fill in optic selection and prescription',
+    feasOK: 'Feasible ✓', feasOKSub: 'Prescription within range for selected optic',
+    feasFail: 'Not Feasible ✗', feasFailSub: 'Prescription outside range — contact Univet CS',
+    feasPartial: 'Partially Feasible', feasPartialSub: 'One eye outside range',
+    feasNoRx: 'No RX required', feasNoRxSub: 'Neutral or contact lens option selected',
+    opticSel: 'Optic Selected', wdSel: 'Working Distance',
+    odRx: 'OD (Right) SPH/CYL', osRx: 'OS (Left) SPH/CYL',
+    odResult: 'OD Result', osResult: 'OS Result', pdCheck: 'PD Check',
+    exportBtn: 'Export Order (.xlsx)',
+    legend: 'Legend', legendOk: 'Within feasibility range',
+    legendOut: 'Outside feasibility range', legendNa: 'Not yet entered',
+    pdOK: 'PD within frame limits', pdWarn: 'PD outside frame limits!',
+    pdNoFrame: 'Select frame to check PD',
+  },
+  zh: {
+    title: 'Univet 訂單表格', subtitle: '2026 — 處方可行性即時驗證',
+    s1: '客戶基本資料', s2: '倍率與工作距離',
+    s3: '鏡架選擇', s4: '處方資料 (RX)', s5: 'IPD 瞳距測量',
+    s6: '傾斜角與配件',
+    date: '日期', agent: '業務代表', fname: '名字', lname: '姓氏',
+    yob: '出生年份 (YYYY)', age: '年齡', profession: '職業',
+    specialty: '主要專科', address: '地址', town: '城市',
+    country: '國家', tel: '電話', email: '電子信箱',
+    selectOptic: '請選擇光學類型與工作距離', product: '產品',
+    wdNote: 'ⓘ 600/700mm 工作距離僅適用於 2.5x & 3.0x Galilean（ITA & ONE 鏡架）。Ergo Advanced 700mm 僅支援 Plano。',
+    frame: '鏡架型號', color: '鏡架顏色', customCase: '鏡盒客製刻字（最多17字元）',
+    customFrame: '鏡架客製刻字（最多17字元）', note: '備註',
+    lensType: '矯正類型',
+    neutral: '無度數', neutralCL: '無度數（佩戴隱形眼鏡）', distance: '遠用',
+    intermediate: '中距', reading: '近用', bifocal: '雙焦',
+    rightEye: '右眼 (OD)', leftEye: '左眼 (OS)',
+    sph: '球面', cyl: '柱面', axis: '軸向',
+    dist: '遠距', inter: '中距', read: '近距', add: '加光度',
+    rxNote: 'ⓘ 請附上原始處方單或填寫上方表格。數值同時用於光學系統設定。',
+    halfPD: 'Half PD', totalIPDHint: '右眼 Half PD + 左眼 Half PD',
+    meas1: '量測 1', meas2: '量測 2', meas3: '量測 3',
+    rightEyeShort: '右眼', leftEyeShort: '左眼', totalIPD: 'IPD 總值（平均）',
+    ipdNote: 'ⓘ 每眼：三次量測中需有至少2次相同數值，且最大差值 ≤ 0.5mm。以重複出現的數值作為最終 Half PD。',
+    decl: '傾斜角（可選）', maxDecl: 'MAX（預設）',
+    headlight: '頭燈', accessories: '配件',
+    antifog: '防霧布', loupeCase: '收納盒（放大鏡+頭燈）', magAdapter: '磁吸轉接器',
+    accOptional: '可選 — 點擊選取，再次點擊取消',
+    reqNote: '為必填欄位',
+    ergoReadingHint: '選擇 Ergo Advanced 時，兩眼的近用度數（Reading SPH）為必填。',
+    feasCheck: '處方可行性', feasSub: '即時驗證',
+    feasWaiting: '等待輸入', feasWaitingSub: '請選擇光學並填入處方',
+    feasOK: '可以製作 ✓', feasOKSub: '處方在所選光學的可行範圍內',
+    feasFail: '無法製作 ✗', feasFailSub: '處方超出範圍——請聯絡 Univet 客服',
+    feasPartial: '部分可行', feasPartialSub: '其中一眼超出範圍',
+    feasNoRx: '無需處方', feasNoRxSub: '已選擇無度數或隱形眼鏡模式',
+    opticSel: '已選光學', wdSel: '工作距離',
+    odRx: '右眼 SPH/CYL', osRx: '左眼 SPH/CYL',
+    odResult: '右眼結果', osResult: '左眼結果', pdCheck: 'PD 檢查',
+    exportBtn: '匯出訂單 (.xlsx)',
+    legend: '圖例', legendOk: '在可行範圍內',
+    legendOut: '超出可行範圍', legendNa: '尚未填入',
+    pdOK: 'PD 在鏡架範圍內', pdWarn: 'PD 超出鏡架限制！',
+    pdNoFrame: '請先選擇鏡架以檢查 PD',
+  }
+};
+let currentLang = 'en';
+function setLang(l) {
+  currentLang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim().toLowerCase() === (l === 'zh' ? '中文' : 'en')));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (LANG[l][key]) {
+      // Preserve any child elements (e.g. <span class="req">*</span>)
+      const reqSpan = el.querySelector('.req');
+      if (reqSpan) {
+        el.childNodes.forEach(n => { if (n !== reqSpan) n.remove?.() || (n.textContent = ''); });
+        el.insertAdjacentText('afterbegin', LANG[l][key] + ' ');
+      } else {
+        el.textContent = LANG[l][key];
+      }
+    }
+  });
+  onRxChange(); calcIPD();
+}
+const t = key => LANG[currentLang][key] || key;
+
+// ============================================================
+// DATA
+// ============================================================
+const specialties = {
+  Dentistry: ['Dentist','Hygenist','Student'],
+  Medical: ['ENT (Otolaryngology)','General Surgery','Dermatology','Hair Transplant','Cardiovascular','Vascular','Hand Surgery','Plastic Surgery','Neurosurgery','Ophtalmology','Student'],
+  Veterinary: ['General Veterinary','Soft Tissue Surgery','Veterinary Dentistry','Veterinary Opthalmology','Veterinary Neurology','Student'],
+  Other: ['Other']
+};
+const frameColors = {
+  'Look': ['Ruby','Emerald'],
+  'Cool': ['Ruby','Emerald'],
+  'Techne 2025': ['Black/Green','White/Green','Midnight Blue','White/Wisteria'],
+  'Techne [Old]': ['White/Red','Black/Green','White/Pink','Black Edition'],
+  'Techne RX [Old]': ['White/Red','Black/Green','White/Pink'],
+  'Ash 55-17': ['Black/Red','Grey/Grey','Purple/Grey'],
+  'Ash 53-17': ['Black/Red','Grey/Grey','Purple/Grey'],
+  'ITA': ['Midnight Blue','Brown Endura','Green Vespa','Black Edition'],
+  'ITA - Extended Fit': ['Black Edition'],
+  'ONE': ['Desert Sage','Black Edition / Limited Edition','Color Kit']
+};
+
+// PD limits per frame (half PD min/max)
+const pdLimits = {
+  'ASH 55-17': [26.5,38], 'ASH 53-17': [26.5,38],
+  'COOL': [27,38], 'LOOK': [26.5,38], 'ONE': [26.5,38],
+  'ITA': [25.5,38], 'ITA - Extended Fit': [25.5,38],
+  'TECHNE 2025': [27,38], 'TECHNE [OLD]': [26,38], 'TECHNE RX [OLD]': [26.5,38]
+};
+
+function getPdLimit(frame) {
+  if (!frame) return null;
+  const key = frame.toUpperCase().replace(/–|-/g,'').replace(/  +/g,' ').trim();
+  for (const k in pdLimits) {
+    if (key.includes(k)) return pdLimits[k];
+  }
+  return null;
+}
+
+
+// ============================================================
+// PRECISE RX FEASIBILITY - Data extracted from official PDF charts
+// ============================================================
+
+const RX_TABLES = {
+  'Carrier_Monofocal': {"8.0":[-3.75,1.0],"7.75":[-4.0,1.0],"7.5":[-4.0,1.25],"7.25":[-4.0,1.5],"7.0":[-4.0,1.75],"6.75":[-4.0,1.75],"6.5":[-4.0,2.0],"6.25":[-4.0,2.25],"6.0":[-4.0,2.5],"5.75":[-4.0,2.5],"5.5":[-4.0,2.75],"5.25":[-4.0,3.0],"5.0":[-4.0,3.25],"4.75":[-4.0,3.25],"4.5":[-4.0,3.5],"4.25":[-4.0,3.75],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-3.75,4.0],"-6.5":[-3.5,4.0],"-6.75":[-3.25,4.0],"-7.0":[-3.25,4.0],"-7.25":[-3.0,4.0],"-7.5":[-2.75,4.0],"-7.75":[-2.5,4.0],"-8.0":[-2.5,4.0],"-8.25":[-2.25,4.0],"-8.5":[-2.0,4.0],"-8.75":[-1.75,4.0],"-9.0":[-1.75,4.0],"-9.25":[-1.5,4.0],"-9.5":[-1.25,4.0],"-9.75":[-1.0,4.0],"-10.0":[-1.0,4.0]},
+  'TECHNE2025': {"5.0":[-3.75,0.5],"4.75":[-4.0,0.5],"4.5":[-4.0,0.75],"4.25":[-4.0,1.0],"4.0":[-4.0,1.25],"3.75":[-4.0,1.25],"3.5":[-4.0,1.5],"3.25":[-4.0,1.5],"3.0":[-4.0,1.75],"2.75":[-4.0,2.0],"2.5":[-4.0,2.25],"2.25":[-4.0,2.5],"2.0":[-4.0,2.5],"1.75":[-4.0,2.75],"1.5":[-4.0,2.75],"1.25":[-4.0,3.0],"1.0":[-4.0,3.25],"0.75":[-4.0,3.5],"0.5":[-4.0,3.75],"0.25":[-3.88,3.88],"0.0":[-3.81,3.94],"-0.25":[-3.78,3.97],"-0.5":[-3.75,4.0],"-0.75":[-3.5,4.0],"-1.0":[-3.25,4.0],"-1.25":[-3.0,4.0],"-1.5":[-2.75,4.0],"-1.75":[-2.75,4.0],"-2.0":[-2.5,4.0],"-2.25":[-2.5,4.0],"-2.5":[-2.25,4.0],"-2.75":[-2.0,4.0],"-3.0":[-1.75,4.0],"-3.25":[-1.5,4.0],"-3.5":[-1.5,4.0],"-3.75":[-1.25,4.0],"-4.0":[-1.25,4.0],"-4.25":[-1.0,4.0],"-4.5":[-0.75,4.0],"-4.75":[-0.5,4.0],"-5.0":[-0.5,4.0]},
+  'Bifocal_ELine': {"5.0":[-3.75,0.5],"4.75":[-4.0,0.5],"4.5":[-4.0,0.75],"4.25":[-4.0,1.0],"4.0":[-4.0,1.25],"3.75":[-4.0,1.25],"3.5":[-4.0,1.5],"3.25":[-4.0,1.5],"3.0":[-4.0,1.75],"2.75":[-4.0,2.0],"2.5":[-4.0,2.25],"2.25":[-4.0,2.5],"2.0":[-4.0,2.5],"1.75":[-4.0,2.75],"1.5":[-4.0,2.75],"1.25":[-4.0,3.0],"1.0":[-4.0,3.25],"0.75":[-4.0,3.5],"0.5":[-4.0,3.75],"0.25":[-3.88,3.88],"0.0":[-3.81,3.94],"-0.25":[-3.78,3.97],"-0.5":[-3.75,4.0],"-0.75":[-3.5,4.0],"-1.0":[-3.25,4.0],"-1.25":[-3.0,4.0],"-1.5":[-2.75,4.0],"-1.75":[-2.75,4.0],"-2.0":[-2.5,4.0],"-2.25":[-2.5,4.0],"-2.5":[-2.25,4.0],"-2.75":[-2.0,4.0],"-3.0":[-1.75,4.0],"-3.25":[-1.5,4.0],"-3.5":[-1.5,4.0],"-3.75":[-1.25,4.0],"-4.0":[-1.25,4.0],"-4.25":[-1.0,4.0],"-4.5":[-0.75,4.0],"-4.75":[-0.5,4.0],"-5.0":[-0.5,4.0]},
+  'Galilean': {"8.0":[-3.75,1.0],"7.75":[-4.0,1.0],"7.5":[-4.0,1.25],"7.25":[-4.0,1.5],"7.0":[-4.0,1.75],"6.75":[-4.0,1.75],"6.5":[-4.0,2.0],"6.25":[-4.0,2.25],"6.0":[-4.0,2.5],"5.75":[-4.0,2.5],"5.5":[-4.0,2.75],"5.25":[-4.0,3.0],"5.0":[-4.0,3.25],"4.75":[-4.0,3.25],"4.5":[-4.0,3.5],"4.25":[-4.0,3.75],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-3.75,4.0],"-6.5":[-3.5,4.0],"-6.75":[-3.25,4.0],"-7.0":[-3.25,4.0],"-7.25":[-3.0,4.0],"-7.5":[-2.75,4.0],"-7.75":[-2.5,4.0],"-8.0":[-2.5,4.0],"-8.25":[-2.25,4.0],"-8.5":[-2.0,4.0],"-8.75":[-1.75,4.0],"-9.0":[-1.75,4.0],"-9.25":[-1.5,4.0],"-9.5":[-1.25,4.0],"-9.75":[-1.0,4.0],"-10.0":[-1.0,4.0]},
+  'Prismatic_3.5x_300': {"8.0":[-4.0,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,0.0],"6.5":[-4.0,0.0],"6.25":[-4.0,0.0],"6.0":[-4.0,0.0],"5.75":[-4.0,0.0],"5.5":[-4.0,0.75],"5.25":[-4.0,1.0],"5.0":[-4.0,1.5],"4.75":[-4.0,1.75],"4.5":[-4.0,2.25],"4.25":[-4.0,2.25],"4.0":[-4.0,2.75],"3.75":[-4.0,3.0],"3.5":[-4.0,3.5],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-4.0,4.0],"-7.25":[-4.0,4.0],"-7.5":[-4.0,4.0],"-7.75":[-3.5,4.0],"-8.0":[-3.0,4.0],"-8.25":[-3.0,4.0],"-8.5":[-2.75,4.0],"-8.75":[-2.25,4.0],"-9.0":[-1.75,4.0],"-9.25":[-1.5,4.0],"-9.5":[-1.0,4.0],"-9.75":[-0.75,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_3.5x_350': {"8.0":[-4.0,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,0.0],"6.5":[-4.0,0.0],"6.25":[-4.0,0.0],"6.0":[-4.0,0.0],"5.75":[-4.0,0.75],"5.5":[-4.0,1.0],"5.25":[-4.0,1.5],"5.0":[-4.0,1.75],"4.75":[-4.0,1.75],"4.5":[-4.0,2.25],"4.25":[-4.0,2.75],"4.0":[-4.0,3.0],"3.75":[-4.0,3.5],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-3.75,4.0],"-1.0":[-3.75,3.88],"-1.25":[-3.75,3.75],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-3.5,4.0],"-6.0":[-3.0,4.0],"-6.25":[-2.75,4.0],"-6.5":[-2.25,4.0],"-6.75":[-1.75,4.0],"-7.0":[-1.75,4.0],"-7.25":[-1.5,4.0],"-7.5":[-1.0,4.0],"-7.75":[-0.75,4.0],"-8.0":[0.0,4.0],"-8.25":[0.0,4.0],"-8.5":[0.0,4.0],"-8.75":[0.0,4.0],"-9.0":[0.0,4.0],"-9.25":[0.0,4.0],"-9.5":[0.0,4.0],"-9.75":[0.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_3.5x_400': {"8.0":[-4.0,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,0.0],"6.5":[-4.0,0.0],"6.25":[-4.0,0.0],"6.0":[-4.0,0.0],"5.75":[-4.0,0.75],"5.5":[-4.0,1.0],"5.25":[-4.0,1.5],"5.0":[-4.0,1.75],"4.75":[-4.0,1.75],"4.5":[-4.0,2.25],"4.25":[-4.0,2.75],"4.0":[-4.0,3.0],"3.75":[-4.0,3.5],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-3.5,4.0],"-6.0":[-3.0,4.0],"-6.25":[-2.75,4.0],"-6.5":[-2.25,4.0],"-6.75":[-1.75,4.0],"-7.0":[-1.75,4.0],"-7.25":[-1.5,4.0],"-7.5":[-1.0,4.0],"-7.75":[-0.75,4.0],"-8.0":[0.0,4.0],"-8.25":[0.0,4.0],"-8.5":[0.0,4.0],"-8.75":[0.0,4.0],"-9.0":[0.0,4.0],"-9.25":[0.0,4.0],"-9.5":[0.0,4.0],"-9.75":[0.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_3.5x_450': {"8.0":[-3.75,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.75],"6.75":[-4.0,1.0],"6.5":[-4.0,1.5],"6.25":[-4.0,1.75],"6.0":[-4.0,2.25],"5.75":[-4.0,2.75],"5.5":[-4.0,3.0],"5.25":[-4.0,3.5],"5.0":[-4.0,4.0],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-4.0,4.0],"-7.25":[-4.0,4.0],"-7.5":[-4.0,4.0],"-7.75":[-4.0,4.0],"-8.0":[-4.0,4.0],"-8.25":[-3.5,4.0],"-8.5":[-3.0,4.0],"-8.75":[-2.75,4.0],"-9.0":[-2.25,4.0],"-9.25":[-1.75,4.0],"-9.5":[-1.5,4.0],"-9.75":[-1.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_3.5x_500': {"8.0":[-3.75,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,0.0],"6.5":[-4.0,0.75],"6.25":[-4.0,1.0],"6.0":[-4.0,1.5],"5.75":[-4.0,1.5],"5.5":[-4.0,1.75],"5.25":[-4.0,2.25],"5.0":[-4.0,2.75],"4.75":[-4.0,2.75],"4.5":[-4.0,3.0],"4.25":[-4.0,3.5],"4.0":[-4.0,3.5],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-3.5,4.0],"-5.0":[-3.5,4.0],"-5.25":[-3.0,4.0],"-5.5":[-2.75,4.0],"-5.75":[-2.25,4.0],"-6.0":[-2.25,4.0],"-6.25":[-1.75,4.0],"-6.5":[-1.5,4.0],"-6.75":[-1.0,4.0],"-7.0":[-1.0,4.0],"-7.25":[-0.75,4.0],"-7.5":[0.0,4.0],"-7.75":[0.0,4.0],"-8.0":[0.0,4.0],"-8.25":[0.0,4.0],"-8.5":[0.0,4.0],"-8.75":[0.0,4.0],"-9.0":[0.0,4.0],"-9.25":[0.0,4.0],"-9.5":[0.0,4.0],"-9.75":[0.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_4.0x_300': {"8.0":[-4.0,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,0.0],"6.5":[-4.0,0.0],"6.25":[-4.0,0.0],"6.0":[-4.0,0.0],"5.75":[-4.0,0.0],"5.5":[-4.0,0.75],"5.25":[-4.0,0.75],"5.0":[-4.0,1.0],"4.75":[-4.0,1.5],"4.5":[-4.0,1.75],"4.25":[-4.0,2.25],"4.0":[-4.0,2.25],"3.75":[-4.0,2.75],"3.5":[-4.0,3.0],"3.25":[-4.0,3.5],"3.0":[-4.0,3.75],"2.75":[-4.0,3.88],"2.5":[-4.0,3.94],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-3.5,4.0],"-7.25":[-3.0,4.0],"-7.5":[-3.0,4.0],"-7.75":[-2.75,4.0],"-8.0":[-2.25,4.0],"-8.25":[-1.75,4.0],"-8.5":[-1.5,4.0],"-8.75":[-1.5,4.0],"-9.0":[-1.0,4.0],"-9.25":[-0.75,4.0],"-9.5":[0.0,4.0],"-9.75":[0.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_4.0x_350': {"8.0":[-3.75,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,1.0],"6.5":[-4.0,1.5],"6.25":[-4.0,1.75],"6.0":[-4.0,2.25],"5.75":[-4.0,2.75],"5.5":[-4.0,3.0],"5.25":[-4.0,3.0],"5.0":[-4.0,3.75],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-3.75,4.0],"-6.25":[-3.5,4.0],"-6.5":[-3.0,4.0],"-6.75":[-2.75,4.0],"-7.0":[-2.25,4.0],"-7.25":[-1.75,4.0],"-7.5":[-1.5,4.0],"-7.75":[-1.0,4.0],"-8.0":[0.0,4.0],"-8.25":[0.0,4.0],"-8.5":[0.0,4.0],"-8.75":[0.0,4.0],"-9.0":[0.0,4.0],"-9.25":[0.0,4.0],"-9.5":[0.0,4.0],"-9.75":[0.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_4.0x_400': {"8.0":[-4.0,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,0.0],"6.5":[-4.0,0.0],"6.25":[-4.0,0.0],"6.0":[-4.0,0.0],"5.75":[-4.0,0.0],"5.5":[-4.0,0.75],"5.25":[-4.0,0.75],"5.0":[-4.0,1.0],"4.75":[-4.0,1.5],"4.5":[-4.0,1.75],"4.25":[-4.0,2.25],"4.0":[-4.0,2.25],"3.75":[-4.0,2.75],"3.5":[-4.0,3.0],"3.25":[-4.0,3.5],"3.0":[-3.75,3.5],"2.75":[-3.88,3.75],"2.5":[-3.94,3.88],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-4.0,4.0],"-7.25":[-4.0,4.0],"-7.5":[-4.0,4.0],"-7.75":[-3.5,4.0],"-8.0":[-3.0,4.0],"-8.25":[-2.75,4.0],"-8.5":[-2.25,4.0],"-8.75":[-2.25,4.0],"-9.0":[-1.75,4.0],"-9.25":[-1.5,4.0],"-9.5":[-1.0,4.0],"-9.75":[-0.75,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_4.0x_450': {"8.0":[-4.0,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,0.0],"6.5":[-4.0,0.0],"6.25":[-4.0,0.0],"6.0":[-4.0,0.75],"5.75":[-4.0,1.0],"5.5":[-4.0,1.5],"5.25":[-4.0,1.75],"5.0":[-4.0,2.25],"4.75":[-4.0,2.75],"4.5":[-4.0,3.0],"4.25":[-4.0,3.5],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-3.88,4.0],"-0.25":[-3.75,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-4.0,4.0],"-7.25":[-4.0,4.0],"-7.5":[-4.0,4.0],"-7.75":[-4.0,4.0],"-8.0":[-4.0,4.0],"-8.25":[-3.5,4.0],"-8.5":[-3.0,4.0],"-8.75":[-2.75,4.0],"-9.0":[-2.25,4.0],"-9.25":[-1.75,4.0],"-9.5":[-1.5,4.0],"-9.75":[-1.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_4.0x_500': {"8.0":[-3.75,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.75],"7.25":[-4.0,1.0],"7.0":[-4.0,1.5],"6.75":[-4.0,1.75],"6.5":[-4.0,2.25],"6.25":[-4.0,2.75],"6.0":[-4.0,3.0],"5.75":[-4.0,3.5],"5.5":[-4.0,4.0],"5.25":[-4.0,4.0],"5.0":[-4.0,4.0],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-3.88,3.88],"-0.25":[-3.75,3.75],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-4.0,4.0],"-7.25":[-4.0,4.0],"-7.5":[-4.0,4.0],"-7.75":[-4.0,4.0],"-8.0":[-4.0,4.0],"-8.25":[-3.5,4.0],"-8.5":[-3.0,4.0],"-8.75":[-2.75,4.0],"-9.0":[-2.25,4.0],"-9.25":[-1.75,4.0],"-9.5":[-1.5,4.0],"-9.75":[-1.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_5.0x_300': {"8.0":[-4.0,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.0],"6.75":[-4.0,0.0],"6.5":[-4.0,0.0],"6.25":[-4.0,0.0],"6.0":[-4.0,0.0],"5.75":[-4.0,0.0],"5.5":[-4.0,0.75],"5.25":[-4.0,0.75],"5.0":[-4.0,1.25],"4.75":[-4.0,1.5],"4.5":[-4.0,2.0],"4.25":[-4.0,2.25],"4.0":[-4.0,2.25],"3.75":[-4.0,2.75],"3.5":[-4.0,3.0],"3.25":[-4.0,3.5],"3.0":[-4.0,3.75],"2.75":[-4.0,3.88],"2.5":[-4.0,3.94],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-3.5,4.0],"-7.25":[-3.0,4.0],"-7.5":[-3.0,4.0],"-7.75":[-2.75,4.0],"-8.0":[-2.25,4.0],"-8.25":[-2.0,4.0],"-8.5":[-1.5,4.0],"-8.75":[-1.5,4.0],"-9.0":[-1.25,4.0],"-9.25":[-0.75,4.0],"-9.5":[0.0,4.0],"-9.75":[0.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_5.0x_350': {"8.0":[-3.75,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.75],"7.0":[-4.0,1.25],"6.75":[-4.0,1.5],"6.5":[-4.0,2.0],"6.25":[-4.0,2.25],"6.0":[-4.0,2.25],"5.75":[-4.0,2.75],"5.5":[-4.0,3.0],"5.25":[-4.0,3.5],"5.0":[-4.0,4.0],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-3.5,4.0],"-5.5":[-3.0,4.0],"-5.75":[-2.75,4.0],"-6.0":[-2.25,4.0],"-6.25":[-2.25,4.0],"-6.5":[-2.0,4.0],"-6.75":[-1.5,4.0],"-7.0":[-1.25,4.0],"-7.25":[-0.75,4.0],"-7.5":[-0.75,4.0],"-7.75":[0.0,4.0],"-8.0":[0.0,4.0],"-8.25":[0.0,4.0],"-8.5":[0.0,4.0],"-8.75":[0.0,4.0],"-9.0":[0.0,4.0],"-9.25":[0.0,4.0],"-9.5":[0.0,4.0],"-9.75":[0.0,4.0],"-10.0":[0.0,4.0]},
+  'Prismatic_5.0x_400': {"8.0":[-3.75,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.75],"7.25":[-4.0,1.25],"7.0":[-4.0,1.5],"6.75":[-4.0,2.0],"6.5":[-4.0,2.25],"6.25":[-4.0,2.75],"6.0":[-4.0,3.0],"5.75":[-4.0,3.5],"5.5":[-4.0,4.0],"5.25":[-4.0,4.0],"5.0":[-4.0,4.0],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-4.0,4.0],"-7.25":[-4.0,4.0],"-7.5":[-4.0,4.0],"-7.75":[-4.0,4.0],"-8.0":[-4.0,4.0],"-8.25":[-3.5,4.0],"-8.5":[-3.0,4.0],"-8.75":[-2.75,4.0],"-9.0":[-2.25,4.0],"-9.25":[-2.0,4.0],"-9.5":[-1.5,4.0],"-9.75":[-1.25,4.0],"-10.0":[-0.75,4.0]},
+  'Prismatic_5.0x_450': {"8.0":[-3.75,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.75],"6.75":[-4.0,1.25],"6.5":[-4.0,1.5],"6.25":[-4.0,2.0],"6.0":[-4.0,2.25],"5.75":[-4.0,2.75],"5.5":[-4.0,3.0],"5.25":[-4.0,3.5],"5.0":[-4.0,4.0],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-4.0,4.0],"-6.5":[-4.0,4.0],"-6.75":[-4.0,4.0],"-7.0":[-4.0,4.0],"-7.25":[-4.0,4.0],"-7.5":[-4.0,4.0],"-7.75":[-4.0,4.0],"-8.0":[-4.0,4.0],"-8.25":[-3.5,4.0],"-8.5":[-3.0,4.0],"-8.75":[-2.75,4.0],"-9.0":[-2.25,4.0],"-9.25":[-2.0,4.0],"-9.5":[-1.5,4.0],"-9.75":[-1.25,4.0],"-10.0":[-0.75,4.0]},
+  'Prismatic_5.0x_500': {"8.0":[-3.75,0.0],"7.75":[-4.0,0.0],"7.5":[-4.0,0.0],"7.25":[-4.0,0.0],"7.0":[-4.0,0.75],"6.75":[-4.0,1.25],"6.5":[-4.0,1.5],"6.25":[-4.0,2.0],"6.0":[-4.0,2.25],"5.75":[-4.0,2.75],"5.5":[-4.0,3.0],"5.25":[-4.0,3.5],"5.0":[-4.0,4.0],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-3.5,4.0],"-6.5":[-3.0,4.0],"-6.75":[-2.75,4.0],"-7.0":[-2.25,4.0],"-7.25":[-2.0,4.0],"-7.5":[-1.5,4.0],"-7.75":[-1.25,4.0],"-8.0":[-0.75,4.0],"-8.25":[0.0,4.0],"-8.5":[0.0,4.0],"-8.75":[0.0,4.0],"-9.0":[0.0,4.0],"-9.25":[0.0,4.0],"-9.5":[0.0,4.0],"-9.75":[0.0,4.0],"-10.0":[0.0,4.0]},
+  'Ergo_3.5x_400': {"8.0":[-3.75,0.75],"7.75":[-4.0,0.75],"7.5":[-4.0,1.0],"7.25":[-4.0,1.25],"7.0":[-4.0,1.25],"6.75":[-4.0,1.5],"6.5":[-4.0,1.75],"6.25":[-4.0,2.0],"6.0":[-4.0,2.0],"5.75":[-4.0,2.25],"5.5":[-4.0,2.25],"5.25":[-4.0,2.5],"5.0":[-4.0,2.75],"4.75":[-4.0,3.0],"4.5":[-4.0,3.0],"4.25":[-4.0,3.0],"4.0":[-4.0,3.25],"3.75":[-4.0,3.5],"3.5":[-4.0,3.5],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-3.75,4.0],"-5.75":[-3.75,4.0],"-6.0":[-3.5,4.0],"-6.25":[-3.25,4.0],"-6.5":[-3.0,4.0],"-6.75":[-3.0,4.0],"-7.0":[-2.75,4.0],"-7.25":[-2.5,4.0],"-7.5":[-2.25,4.0],"-7.75":[-2.25,4.0],"-8.0":[-2.0,4.0],"-8.25":[-2.0,4.0],"-8.5":[-1.75,4.0],"-8.75":[-1.5,4.0],"-9.0":[-1.25,4.0],"-9.25":[-1.25,4.0],"-9.5":[-1.25,4.0],"-9.75":[-1.25,4.0],"-10.0":[-1.0,4.0]},
+  'Ergo_3.5x_450': {"8.0":[-3.75,0.75],"7.75":[-4.0,0.75],"7.5":[-4.0,1.0],"7.25":[-4.0,1.0],"7.0":[-4.0,1.25],"6.75":[-4.0,1.25],"6.5":[-4.0,1.5],"6.25":[-4.0,1.75],"6.0":[-4.0,2.0],"5.75":[-4.0,2.0],"5.5":[-4.0,2.25],"5.25":[-4.0,2.5],"5.0":[-4.0,2.5],"4.75":[-4.0,2.75],"4.5":[-4.0,3.0],"4.25":[-4.0,3.0],"4.0":[-4.0,3.25],"3.75":[-4.0,3.5],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-3.75,4.0],"-6.0":[-3.5,4.0],"-6.25":[-3.25,4.0],"-6.5":[-3.0,4.0],"-6.75":[-3.0,4.0],"-7.0":[-2.75,4.0],"-7.25":[-2.75,4.0],"-7.5":[-2.5,4.0],"-7.75":[-2.25,4.0],"-8.0":[-2.0,4.0],"-8.25":[-2.0,4.0],"-8.5":[-1.75,4.0],"-8.75":[-1.5,4.0],"-9.0":[-1.25,4.0],"-9.25":[-1.25,4.0],"-9.5":[-1.25,4.0],"-9.75":[-1.25,4.0],"-10.0":[-1.0,4.0]},
+  'Ergo_3.5x_500': {"8.0":[-3.75,0.75],"7.75":[-4.0,0.75],"7.5":[-4.0,1.0],"7.25":[-4.0,1.0],"7.0":[-4.0,1.25],"6.75":[-4.0,1.25],"6.5":[-4.0,1.5],"6.25":[-4.0,1.75],"6.0":[-4.0,2.0],"5.75":[-4.0,2.0],"5.5":[-4.0,2.25],"5.25":[-4.0,2.5],"5.0":[-4.0,2.5],"4.75":[-4.0,2.75],"4.5":[-4.0,3.0],"4.25":[-4.0,3.0],"4.0":[-4.0,3.25],"3.75":[-4.0,3.5],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-3.75,4.0],"-6.0":[-3.5,4.0],"-6.25":[-3.25,4.0],"-6.5":[-3.0,4.0],"-6.75":[-3.0,4.0],"-7.0":[-2.75,4.0],"-7.25":[-2.75,4.0],"-7.5":[-2.5,4.0],"-7.75":[-2.25,4.0],"-8.0":[-2.0,4.0],"-8.25":[-2.0,4.0],"-8.5":[-1.75,4.0],"-8.75":[-1.5,4.0],"-9.0":[-1.25,4.0],"-9.25":[-1.25,4.0],"-9.5":[-1.25,4.0],"-9.75":[-1.25,4.0],"-10.0":[-1.0,4.0]},
+  'Ergo_3.5x_550': {"8.0":[-3.75,4.0],"7.75":[-4.0,4.0],"7.5":[-4.0,4.0],"7.25":[-4.0,4.0],"7.0":[-4.0,4.0],"6.75":[-4.0,4.0],"6.5":[-4.0,4.0],"6.25":[-4.0,4.0],"6.0":[-4.0,4.0],"5.75":[-4.0,4.0],"5.5":[-4.0,4.0],"5.25":[-4.0,4.0],"5.0":[-4.0,4.0],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-3.88,3.88],"-2.0":[-3.81,3.81],"-2.25":[-3.78,3.78],"-2.5":[-3.76,3.76],"-2.75":[-3.75,3.75],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-3.75,4.0],"-5.5":[-3.5,4.0],"-5.75":[-3.5,4.0],"-6.0":[-3.25,4.0],"-6.25":[-3.0,4.0],"-6.5":[-3.0,4.0],"-6.75":[-2.75,4.0],"-7.0":[-2.5,4.0],"-7.25":[-2.5,4.0],"-7.5":[-2.25,4.0],"-7.75":[-2.0,4.0],"-8.0":[-2.0,4.0],"-8.25":[-1.75,4.0],"-8.5":[-1.75,4.0],"-8.75":[-1.5,4.0],"-9.0":[-1.25,4.0],"-9.25":[-1.25,4.0],"-9.5":[-1.25,4.0],"-9.75":[-1.25,4.0],"-10.0":[-1.0,4.0]},
+  'Ergo_3.5x_600': {"8.0":[-3.75,4.0],"7.75":[-4.0,4.0],"7.5":[-4.0,4.0],"7.25":[-4.0,4.0],"7.0":[-4.0,4.0],"6.75":[-4.0,4.0],"6.5":[-4.0,4.0],"6.25":[-4.0,4.0],"6.0":[-4.0,4.0],"5.75":[-4.0,4.0],"5.5":[-4.0,4.0],"5.25":[-4.0,4.0],"5.0":[-4.0,4.0],"4.75":[-4.0,4.0],"4.5":[-4.0,4.0],"4.25":[-4.0,4.0],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-4.0,4.0],"-0.25":[-4.0,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-3.75,4.0],"-5.0":[-3.75,4.0],"-5.25":[-3.5,4.0],"-5.5":[-3.25,4.0],"-5.75":[-3.0,4.0],"-6.0":[-3.0,4.0],"-6.25":[-3.0,4.0],"-6.5":[-2.75,4.0],"-6.75":[-2.5,4.0],"-7.0":[-2.5,4.0],"-7.25":[-2.25,4.0],"-7.5":[-2.0,4.0],"-7.75":[-2.0,4.0],"-8.0":[-2.0,4.0],"-8.25":[-1.75,4.0],"-8.5":[-1.5,4.0],"-8.75":[-1.25,4.0],"-9.0":[-1.25,4.0],"-9.25":[-1.25,4.0],"-9.5":[-1.25,4.0],"-9.75":[-1.25,4.0],"-10.0":[-1.0,4.0]},
+  'Ergo_4.5x': {"8.0":[-3.75,0.5],"7.75":[-4.0,0.75],"7.5":[-4.0,0.75],"7.25":[-4.0,1.0],"7.0":[-4.0,1.25],"6.75":[-4.0,1.5],"6.5":[-4.0,1.75],"6.25":[-4.0,2.0],"6.0":[-4.0,2.25],"5.75":[-4.0,2.5],"5.5":[-4.0,2.5],"5.25":[-4.0,2.75],"5.0":[-4.0,3.0],"4.75":[-4.0,3.25],"4.5":[-4.0,3.5],"4.25":[-4.0,3.75],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-3.88,4.0],"-0.25":[-3.75,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-3.75,4.0],"-6.5":[-3.5,4.0],"-6.75":[-3.25,4.0],"-7.0":[-3.0,4.0],"-7.25":[-2.75,4.0],"-7.5":[-2.5,4.0],"-7.75":[-2.25,4.0],"-8.0":[-2.25,4.0],"-8.25":[-2.0,4.0],"-8.5":[-1.75,4.0],"-8.75":[-1.5,4.0],"-9.0":[-1.25,4.0],"-9.25":[-1.0,4.0],"-9.5":[-0.75,4.0],"-9.75":[-0.5,4.0],"-10.0":[-0.5,4.0]},
+  'Ergo_5.7x': {"8.0":[-3.75,0.5],"7.75":[-4.0,0.75],"7.5":[-4.0,0.75],"7.25":[-4.0,1.0],"7.0":[-4.0,1.25],"6.75":[-4.0,1.5],"6.5":[-4.0,1.75],"6.25":[-4.0,2.0],"6.0":[-4.0,2.25],"5.75":[-4.0,2.5],"5.5":[-4.0,2.5],"5.25":[-4.0,2.75],"5.0":[-4.0,3.0],"4.75":[-4.0,3.25],"4.5":[-4.0,3.5],"4.25":[-4.0,3.75],"4.0":[-4.0,4.0],"3.75":[-4.0,4.0],"3.5":[-4.0,4.0],"3.25":[-4.0,4.0],"3.0":[-4.0,4.0],"2.75":[-4.0,4.0],"2.5":[-4.0,4.0],"2.25":[-4.0,4.0],"2.0":[-4.0,4.0],"1.75":[-4.0,4.0],"1.5":[-4.0,4.0],"1.25":[-4.0,4.0],"1.0":[-4.0,4.0],"0.75":[-4.0,4.0],"0.5":[-4.0,4.0],"0.25":[-4.0,4.0],"0.0":[-3.88,4.0],"-0.25":[-3.75,4.0],"-0.5":[-4.0,4.0],"-0.75":[-4.0,4.0],"-1.0":[-4.0,4.0],"-1.25":[-4.0,4.0],"-1.5":[-4.0,4.0],"-1.75":[-4.0,4.0],"-2.0":[-4.0,4.0],"-2.25":[-4.0,4.0],"-2.5":[-4.0,4.0],"-2.75":[-4.0,4.0],"-3.0":[-4.0,4.0],"-3.25":[-4.0,4.0],"-3.5":[-4.0,4.0],"-3.75":[-4.0,4.0],"-4.0":[-4.0,4.0],"-4.25":[-4.0,4.0],"-4.5":[-4.0,4.0],"-4.75":[-4.0,4.0],"-5.0":[-4.0,4.0],"-5.25":[-4.0,4.0],"-5.5":[-4.0,4.0],"-5.75":[-4.0,4.0],"-6.0":[-4.0,4.0],"-6.25":[-3.75,4.0],"-6.5":[-3.5,4.0],"-6.75":[-3.25,4.0],"-7.0":[-3.0,4.0],"-7.25":[-2.75,4.0],"-7.5":[-2.5,4.0],"-7.75":[-2.25,4.0],"-8.0":[-2.25,4.0],"-8.25":[-2.0,4.0],"-8.5":[-1.75,4.0],"-8.75":[-1.5,4.0],"-9.0":[-1.25,4.0],"-9.25":[-1.0,4.0],"-9.5":[-0.75,4.0],"-9.75":[-0.5,4.0],"-10.0":[-0.5,4.0]},
+};
+
+// Map optic selection to table key
+function getTableKey(type, mag, wd) {
+  const magClean = mag.replace('x','').trim();
+  const wdNum = parseInt(wd);
+  
+  if (type === 'Galilean') {
+    return 'Galilean'; // all Galilean WD use same carrier lens chart
+  }
+  
+  if (type === 'Prismatic') {
+    // Available: 3.5x, 4.0x, 5.0x × 300,350,400,450,500mm
+    const magMap = {'3.5': '3.5x', '4.0': '4.0x', '5.0': '5.0x'};
+    const m = magMap[magClean] || magClean;
+    const wds = [300, 350, 400, 450, 500];
+    const nearest = wds.reduce((a, b) => Math.abs(b - wdNum) < Math.abs(a - wdNum) ? b : a);
+    return `Prismatic_${m}_${nearest}`;
+  }
+  
+  if (type === 'Ergo') {
+    if (magClean === '3.5') {
+      // Available: 400,450,500,550,600mm
+      const wds = [400, 450, 500, 550, 600];
+      const nearest = wds.reduce((a, b) => Math.abs(b - wdNum) < Math.abs(a - wdNum) ? b : a);
+      return `Ergo_3.5x_${nearest}`;
+    }
+    if (magClean === '4.5') return 'Ergo_4.5x';
+    if (magClean === '5.7') return 'Ergo_5.7x';
+  }
+  
+  return 'Carrier_Monofocal'; // fallback
+}
+
+// Get the right carrier lens table based on frame
+function getCarrierTableKey(frame, lensType) {
+  if (!frame) return 'Carrier_Monofocal';
+  const f = frame.toUpperCase();
+  if (f.includes('TECHNE 2025') || f.includes('TECHNE2025')) {
+    return lensType === 'bifocal' ? 'Bifocal_ELine' : 'TECHNE2025';
+  }
+  return lensType === 'bifocal' ? 'Bifocal_ELine' : 'Carrier_Monofocal';
+}
+
+// Round to nearest 0.25
+function roundQ(v) {
+  return Math.round(v * 4) / 4;
+}
+
+// Look up feasibility from table
+function lookupFeasibility(tableKey, sph, cyl) {
+  const table = RX_TABLES[tableKey];
+  if (!table) return null;
+  
+  const sphR = roundQ(sph);
+  const cylR = roundQ(cyl);
+  
+  // Find key - try exact match first, then nearest
+  let key = String(sphR);
+  // Handle -0 edge case
+  if (sphR === 0) key = '0.0';
+  
+  const limits = table[key];
+  if (!limits) {
+    // Try nearby keys (±0.125 tolerance for rounding)
+    const allKeys = Object.keys(table).map(Number);
+    const nearest = allKeys.reduce((a, b) => Math.abs(b - sphR) < Math.abs(a - sphR) ? b : a);
+    if (Math.abs(nearest - sphR) <= 0.15) {
+      const nearLimits = table[String(nearest)];
+      if (!nearLimits) return false;
+      return cylR >= nearLimits[0] && cylR <= nearLimits[1];
+    }
+    return false; // SPH out of range
+  }
+  
+  return cylR >= limits[0] && cylR <= limits[1];
+}
+
+function checkFeasibility(type, mag, wd, sph, cyl, frame, lensType) {
+  if (sph === null || sph === undefined || isNaN(sph)) return null;
+  const cylVal = (cyl === null || cyl === undefined || isNaN(cyl)) ? 0 : cyl;
+  
+  // Get the optics table (barrel lens)
+  const opticsKey = getTableKey(type, mag, wd);
+  
+  // Get the carrier lens table (depends on frame & lens type)
+  const carrierKey = getCarrierTableKey(frame, lensType);
+  
+  // Both must pass
+  const opticsOk = lookupFeasibility(opticsKey, sph, cylVal);
+  const carrierOk = lookupFeasibility(carrierKey, sph, cylVal);
+  
+  if (opticsOk === null || carrierOk === null) return null;
+  return opticsOk && carrierOk;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let selectedOptic = null;
+let selectedAccs = new Set();
+let selectedHeadlight = null;
+
+// Frame ↔ Optic compatibility
+const FRAME_COMPAT = {
+  'Look':               ['Galilean'],
+  'Cool':               ['Galilean'],
+  'Techne 2025':        ['Galilean', 'Prismatic'],
+  'Techne [Old]':       ['Galilean', 'Prismatic'],
+  'Techne RX [Old]':    ['Galilean', 'Prismatic'],
+  'Ash 55-17':          ['Galilean', 'Prismatic'],
+  'Ash 53-17':          ['Galilean', 'Prismatic'],
+  'ITA':                ['Galilean', 'Prismatic', 'Ergo'],
+  'ITA - Extended Fit': ['Galilean', 'Prismatic', 'Ergo'],
+  'ONE':                ['Galilean', 'Prismatic', 'Ergo'],
+};
+
+function checkFrameOpticCompat() {
+  const frame = document.getElementById('f_frame').value;
+  const warnEl = document.getElementById('frame-optic-warn');
+  if (!warnEl) return;
+  if (!frame || !selectedOptic) { warnEl.style.display = 'none'; return; }
+
+  const zh = currentLang === 'zh';
+  const allowed = FRAME_COMPAT[frame];
+  const { type, mag, wd } = selectedOptic;
+  const wdNum = parseInt(wd);
+  const itaOneOnly = ['ITA', 'ITA - Extended Fit', 'ONE'];
+
+  // Check type-level compat
+  if (allowed && !allowed.includes(type)) {
+    warnEl.style.display = 'block';
+    warnEl.innerHTML = zh
+      ? `⚠ <strong>${frame}</strong> 不支援 <strong>${type}</strong> 光學系統。此鏡架僅限：${allowed.join('、')}`
+      : `⚠ <strong>${frame}</strong> is not compatible with <strong>${type}</strong> optics. Supports: ${allowed.join(', ')} only.`;
+    return;
+  }
+
+  // Check Galilean 600mm rule
+  if (type === 'Galilean' && wdNum >= 600) {
+    if (mag !== '2.5x' && mag !== '3.0x') {
+      warnEl.style.display = 'block';
+      warnEl.innerHTML = zh
+        ? `⚠ Galilean <strong>${mag}</strong> 不支援 <strong>${wd}mm</strong> 工作距離。600mm 僅限 2.5x 及 3.0x。`
+        : `⚠ Galilean <strong>${mag}</strong> does not support <strong>${wd}mm</strong>. 600mm is only available for 2.5x and 3.0x.`;
+      return;
+    }
+    if (!itaOneOnly.includes(frame)) {
+      warnEl.style.display = 'block';
+      warnEl.innerHTML = zh
+        ? `⚠ <strong>${wd}mm</strong> 工作距離僅限 <strong>ITA</strong> 及 <strong>ONE</strong> 鏡架，目前選擇的 <strong>${frame}</strong> 不支援。`
+        : `⚠ <strong>${wd}mm</strong> working distance is only available with <strong>ITA</strong> or <strong>ONE</strong> frames. <strong>${frame}</strong> is not supported.`;
+      return;
+    }
+  }
+
+  warnEl.style.display = 'none';
+}
+
+// Dim/grey out incompatible optic rows based on selected frame
+function updateOpticRowVisibility() {
+  const frame = document.getElementById('f_frame').value;
+  const allowed = frame ? (FRAME_COMPAT[frame] || null) : null;
+  const itaOneOnly = ['ITA', 'ITA - Extended Fit', 'ONE'];
+  const isItaOne = itaOneOnly.includes(frame);
+
+  document.querySelectorAll('input[name=optic]').forEach(radio => {
+    const parts = radio.value.split('|');
+    const type = parts[0], mag = parts[1], wd = parseInt(parts[2]);
+    const cell = radio.closest('.wd-cell');
+    if (!cell) return;
+
+    let disabled = false;
+    let reason = '';
+
+    // Rule 1: type-level frame compat
+    if (allowed && !allowed.includes(type)) {
+      disabled = true;
+      reason = 'frame_type';
+    }
+
+    // Rule 2: Galilean 600mm → only 2.5x & 3.0x, and only ITA/ONE frames
+    if (!disabled && type === 'Galilean' && wd >= 600) {
+      if (mag !== '2.5x' && mag !== '3.0x') {
+        disabled = true;
+        reason = 'galilean_wd600_mag';  // 2.0x and 3.5x can't do 600mm
+      } else if (frame && !isItaOne) {
+        disabled = true;
+        reason = 'galilean_wd600_frame'; // 2.5x/3.0x at 600mm needs ITA or ONE
+      }
+    }
+
+    if (disabled) {
+      radio.disabled = true;
+      cell.style.opacity = '0.15';
+      cell.style.pointerEvents = 'none';
+      cell.title = reason === 'galilean_wd600_frame'
+        ? '600mm only available with ITA or ONE frames'
+        : reason === 'galilean_wd600_mag'
+        ? '600mm not available for this magnification'
+        : 'Not compatible with selected frame';
+      if (radio.checked) {
+        radio.checked = false;
+        selectedOptic = null;
+        updateFeasibility();
+      }
+    } else {
+      radio.disabled = false;
+      cell.style.opacity = '';
+      cell.style.pointerEvents = '';
+      cell.title = '';
+    }
+  });
+
+  checkFrameOpticCompat();
+}
+
+function onOpticChange() {
+  const v = document.querySelector('input[name=optic]:checked');
+  if (!v) { selectedOptic = null; }
+  else {
+    const parts = v.value.split('|');
+    selectedOptic = { type: parts[0], mag: parts[1], wd: parts[2] };
+  }
+  checkFrameOpticCompat();
+  updateFeasibility();
+  onRxChange();
+}
+
+function onRxChange() {
+  updateFeasibility();
+  // Live Ergo reading reminder
+  const ergoHint = document.getElementById('ergo-reading-hint');
+  if (ergoHint) {
+    const isErgo = selectedOptic && selectedOptic.type === 'Ergo';
+    const lt = document.querySelector('input[name=lens_type]:checked');
+    const needsRx = lt && lt.value !== 'neutral' && lt.value !== 'neutral_cl';
+    ergoHint.style.display = (isErgo && needsRx) ? 'block' : 'none';
+  }
+}
+
+function checkCylAxis(cylId, axisId) {
+  const cylVal = document.getElementById(cylId).value;
+  const axisEl = document.getElementById(axisId);
+  if (cylVal && parseFloat(cylVal) !== 0 && !axisEl.value) {
+    axisEl.classList.add('field-error');
+    let msg = axisEl.parentElement.querySelector('.field-error-msg');
+    if (!msg) { msg = document.createElement('div'); msg.className = 'field-error-msg'; axisEl.parentElement.appendChild(msg); }
+    const zh = currentLang === 'zh';
+    msg.textContent = zh ? 'CYL有值時AXIS必填' : 'Required when CYL is set';
+    msg.classList.add('show');
+    axisEl.focus();
+  }
+}
+
+function onFrameChange() {
+  const frame = document.getElementById('f_frame').value;
+  const col = document.getElementById('f_color');
+  col.innerHTML = '<option value="">— Select —</option>';
+  (frameColors[frame] || []).forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    col.appendChild(o);
+  });
+  updateOpticRowVisibility();
+  calcIPD();
+}
+
+function updateSpecialty() {
+  const p = document.getElementById('f_profession').value;
+  const s = document.getElementById('f_specialty');
+  s.innerHTML = '';
+  (specialties[p] || []).forEach(v => {
+    const o = document.createElement('option'); o.value = v; o.textContent = v;
+    s.appendChild(o);
+  });
+}
+
+function selectChip(el, name, val) {
+  document.querySelectorAll(`.radio-chip input[name=${name}]`).forEach(r => {
+    r.closest('.radio-chip').classList.remove('selected');
+  });
+  el.classList.add('selected');
+  updateFeasibility();
+}
+
+function toggleSingle(el, group, val) {
+  // If already selected, deselect
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    selectedHeadlight = null;
+  } else {
+    // Deselect all in group
+    document.querySelectorAll(`[id^="hl_"]`).forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedHeadlight = val;
+  }
+}
+
+function toggleAcc(el, name) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) selectedAccs.add(name);
+  else selectedAccs.delete(name);
+}
+
+function calcAge() {
+  const yob = parseInt(document.getElementById('f_yob').value);
+  const age = isNaN(yob) ? '' : (new Date().getFullYear() - yob);
+  document.getElementById('f_age').value = age || '';
+}
+
+function getRxVal(id) {
+  const v = document.getElementById(id).value;
+  return v === '' ? null : parseFloat(v);
+}
+
+function updateFeasibility() {
+  const lensType = document.querySelector('input[name=lens_type]:checked');
+  const lensVal = lensType ? lensType.value : null;
+
+  // display optic info
+  const opticEl = document.getElementById('feas-optic');
+  const wdEl = document.getElementById('feas-wd');
+  if (selectedOptic) {
+    opticEl.textContent = `${selectedOptic.type} ${selectedOptic.mag}`;
+    wdEl.textContent = selectedOptic.wd + ' mm';
+  } else {
+    opticEl.textContent = '—';
+    wdEl.textContent = '—';
+  }
+
+  // Get RX values - use distance as primary
+  const odSph = getRxVal('rx_od_dist_sph');
+  const odCyl = getRxVal('rx_od_dist_cyl');
+  const osSph = getRxVal('rx_os_dist_sph');
+  const osCyl = getRxVal('rx_os_dist_cyl');
+
+  document.getElementById('feas-od').textContent = (odSph !== null ? odSph.toFixed(2) : '—') + ' / ' + (odCyl !== null ? odCyl.toFixed(2) : '—');
+  document.getElementById('feas-os').textContent = (osSph !== null ? osSph.toFixed(2) : '—') + ' / ' + (osCyl !== null ? osCyl.toFixed(2) : '—');
+
+  const mainEl = document.getElementById('feas-main');
+  const odResEl = document.getElementById('feas-od-result');
+  const osResEl = document.getElementById('feas-os-result');
+
+  // Neutral cases
+  if (lensVal === 'neutral' || lensVal === 'neutral_cl') {
+    mainEl.className = 'feas-status ok';
+    mainEl.innerHTML = `<div class="feas-icon">✓</div><div><div class="feas-label">${t('feasNoRx')}</div><div class="feas-detail">${t('feasNoRxSub')}</div></div>`;
+    odResEl.innerHTML = `<span class="badge na">N/A</span>`;
+    osResEl.innerHTML = `<span class="badge na">N/A</span>`;
+    return;
+  }
+
+  if (!selectedOptic) {
+    mainEl.className = 'feas-status neutral';
+    mainEl.innerHTML = `<div class="feas-icon">○</div><div><div class="feas-label">${t('feasWaiting')}</div><div class="feas-detail">${t('feasWaitingSub')}</div></div>`;
+    odResEl.innerHTML = `<span class="badge na">—</span>`;
+    osResEl.innerHTML = `<span class="badge na">—</span>`;
+    return;
+  }
+
+  if (odSph === null && osSph === null) {
+    mainEl.className = 'feas-status neutral';
+    mainEl.innerHTML = `<div class="feas-icon">○</div><div><div class="feas-label">${t('feasWaiting')}</div><div class="feas-detail">${t('feasWaitingSub')}</div></div>`;
+    odResEl.innerHTML = `<span class="badge na">—</span>`;
+    osResEl.innerHTML = `<span class="badge na">—</span>`;
+    return;
+  }
+
+  const { type, mag, wd } = selectedOptic;
+  const frame = document.getElementById('f_frame').value;
+  const lensVal2 = document.querySelector('input[name=lens_type]:checked')?.value || '';
+  const odOk = (odSph === null) ? null : checkFeasibility(type, mag, wd, odSph, odCyl || 0, frame, lensVal2);
+  const osOk = (osSph === null) ? null : checkFeasibility(type, mag, wd, osSph, osCyl || 0, frame, lensVal2);
+
+  odResEl.innerHTML = odOk === null ? `<span class="badge na">—</span>` : odOk ? `<span class="badge ok">✓ OK</span>` : `<span class="badge warn">✗ Out</span>`;
+  osResEl.innerHTML = osOk === null ? `<span class="badge na">—</span>` : osOk ? `<span class="badge ok">✓ OK</span>` : `<span class="badge warn">✗ Out</span>`;
+
+  const bothOk = (odOk !== false) && (osOk !== false) && (odOk !== null || osOk !== null);
+  const anyFail = odOk === false || osOk === false;
+  const bothFail = odOk === false && osOk === false;
+
+  if (anyFail) {
+    mainEl.className = 'feas-status warn';
+    mainEl.innerHTML = `<div class="feas-icon">✗</div><div><div class="feas-label">${t(bothFail ? 'feasFail' : 'feasPartial')}</div><div class="feas-detail">${t(bothFail ? 'feasFailSub' : 'feasPartialSub')}</div></div>`;
+  } else {
+    mainEl.className = 'feas-status ok';
+    mainEl.innerHTML = `<div class="feas-icon">✓</div><div><div class="feas-label">${t('feasOK')}</div><div class="feas-detail">${t('feasOKSub')}</div></div>`;
+  }
+}
+
+// ============================================================
+// IPD
+// ============================================================
+// Validate a set of IPD measurements per Univet rules:
+// - At least 2 of 3 must be identical (or within 0.0mm), AND max spread ≤ 0.5mm
+// - Returns { valid, avg, errors[] }
+function validateIPDEye(vals, eyeLabel) {
+  const errors = [];
+  if (vals.length < 2) return { valid: false, avg: null, errors: [] }; // not enough data yet
+
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const spread = mx - mn;
+
+  // Check max spread ≤ 0.5mm
+  if (spread > 0.5) {
+    errors.push(currentLang === 'zh'
+      ? `${eyeLabel}：三次差值 ${spread.toFixed(1)}mm 超過允許的 0.5mm`
+      : `${eyeLabel}: spread ${spread.toFixed(1)}mm exceeds 0.5mm limit`);
+  }
+
+  // If 3 values: check that at least 2 are equal
+  if (vals.length === 3) {
+    const pairs = [[vals[0],vals[1]],[vals[0],vals[2]],[vals[1],vals[2]]];
+    const hasMatch = pairs.some(([a,b]) => a === b);
+    if (!hasMatch) {
+      errors.push(currentLang === 'zh'
+        ? `${eyeLabel}：三次測量中沒有兩次相同的數值`
+        : `${eyeLabel}: no two measurements are identical`);
+    }
+  }
+
+  // Average: if 3 values and one outlier, use the two matching ones
+  let avg;
+  if (vals.length === 3) {
+    const pairs = [
+      { pair: [vals[0],vals[1]], other: vals[2] },
+      { pair: [vals[0],vals[2]], other: vals[1] },
+      { pair: [vals[1],vals[2]], other: vals[0] },
+    ];
+    const matchingPair = pairs.find(p => p.pair[0] === p.pair[1]);
+    if (matchingPair) {
+      avg = matchingPair.pair[0]; // use the repeated value
+    } else {
+      avg = vals.reduce((a,b)=>a+b,0) / vals.length; // fallback
+    }
+  } else {
+    avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+  }
+
+  return { valid: errors.length === 0, avg: parseFloat(avg.toFixed(1)), errors };
+}
+
+function calcIPD() {
+  const rVals = ['ipd_r1','ipd_r2','ipd_r3'].map(id => parseFloat(document.getElementById(id).value)).filter(v => !isNaN(v));
+  const lVals = ['ipd_l1','ipd_l2','ipd_l3'].map(id => parseFloat(document.getElementById(id).value)).filter(v => !isNaN(v));
+
+  const rLabel = currentLang === 'zh' ? '右眼' : 'Right Eye';
+  const lLabel = currentLang === 'zh' ? '左眼' : 'Left Eye';
+
+  const rResult = rVals.length >= 2 ? validateIPDEye(rVals, rLabel) : null;
+  const lResult = lVals.length >= 2 ? validateIPDEye(lVals, lLabel) : null;
+
+  const rAvgStr = rResult ? String(rResult.avg) : '—';
+  const lAvgStr = lResult ? String(lResult.avg) : '—';
+  // Total only shown when BOTH eyes have valid Half PD
+  const bothValid = rResult && lResult && rResult.valid && lResult.valid;
+  const total = bothValid ? (rResult.avg + lResult.avg).toFixed(1) : '—';
+
+  // Color-code the Half PD cells
+  const rAvgEl = document.getElementById('ipd_r_avg');
+  const lAvgEl = document.getElementById('ipd_l_avg');
+  const totalEl = document.getElementById('ipd_total');
+
+  function styleAvgCell(el, result, valStr) {
+    el.textContent = valStr;
+    el.style.color = '';
+    el.style.fontWeight = '600';
+    if (result && !result.valid) {
+      el.style.color = 'var(--warn-text)';
+    } else if (result && result.valid) {
+      el.style.color = 'var(--ok-text)';
+    }
+  }
+
+  styleAvgCell(rAvgEl, rResult, rAvgStr);
+  styleAvgCell(lAvgEl, lResult, lAvgStr);
+  totalEl.textContent = total;
+  totalEl.style.color = bothValid ? 'var(--ok-text)' : (rResult || lResult ? 'var(--warn-text)' : '');
+
+  // Collect all measurement errors
+  const measErrors = [
+    ...(rResult ? rResult.errors : []),
+    ...(lResult ? lResult.errors : []),
+  ];
+
+  // PD range check (only if measurements are valid)
+  const frame = document.getElementById('f_frame').value;
+  const pdWarnEl = document.getElementById('pd-warning');
+  const pdFeasEl = document.getElementById('feas-pd');
+  const limits = getPdLimit(frame);
+
+  if (!rResult && !lResult) {
+    pdFeasEl.innerHTML = `<span class="badge na">—</span>`;
+    pdWarnEl.className = 'pd-warning';
+    return;
+  }
+
+  if (!frame || !limits) {
+    // Show measurement errors if any, but no PD range check
+    if (measErrors.length) {
+      pdWarnEl.className = 'pd-warning warn show';
+      pdWarnEl.innerHTML = measErrors.map(e => `⚠ ${e}`).join('<br>');
+    } else {
+      pdWarnEl.className = 'pd-warning';
+    }
+    pdFeasEl.innerHTML = `<span class="badge na">${t('pdNoFrame')}</span>`;
+    return;
+  }
+
+  const rInRange = rResult ? (rResult.avg >= limits[0] && rResult.avg <= limits[1]) : null;
+  const lInRange = lResult ? (lResult.avg >= limits[0] && lResult.avg <= limits[1]) : null;
+  const pdErrors = [];
+  if (rInRange === false) pdErrors.push(currentLang === 'zh' ? `右眼 Half PD ${rResult.avg}mm 超出 ${frame} 限制（${limits[0]}–${limits[1]}mm）` : `Right Eye Half PD ${rResult.avg}mm outside ${frame} limits (${limits[0]}–${limits[1]}mm)`);
+  if (lInRange === false) pdErrors.push(currentLang === 'zh' ? `左眼 Half PD ${lResult.avg}mm 超出 ${frame} 限制（${limits[0]}–${limits[1]}mm）` : `Left Eye Half PD ${lResult.avg}mm outside ${frame} limits (${limits[0]}–${limits[1]}mm)`);
+
+  const allErrors = [...measErrors, ...pdErrors];
+  const rMeasValid = rResult ? rResult.valid : true;
+  const lMeasValid = lResult ? lResult.valid : true;
+  const allValid = rMeasValid && lMeasValid && pdErrors.length === 0;
+
+  if (allErrors.length > 0) {
+    pdFeasEl.innerHTML = `<span class="badge warn">✗ Error</span>`;
+    pdWarnEl.className = 'pd-warning warn show';
+    pdWarnEl.innerHTML = allErrors.map(e => `⚠ ${e}`).join('<br>');
+  } else if (allValid && (rResult || lResult)) {
+    pdFeasEl.innerHTML = `<span class="badge ok">✓ OK</span>`;
+    pdWarnEl.className = 'pd-warning ok show';
+    pdWarnEl.textContent = `✓ ${t('pdOK')} (${limits[0]}–${limits[1]} mm/eye)`;
+  } else {
+    pdFeasEl.innerHTML = `<span class="badge na">—</span>`;
+    pdWarnEl.className = 'pd-warning';
+  }
+}
+
+// ============================================================
+// VALIDATION & EXPORT
+// ============================================================
+
+function markError(el, msg) {
+  if (!el) return;
+  el.classList.add('field-error');
+  let errEl = el.parentElement.querySelector('.field-error-msg');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.className = 'field-error-msg';
+    el.parentElement.appendChild(errEl);
+  }
+  errEl.textContent = msg;
+  errEl.classList.add('show');
+}
+
+function clearErrors() {
+  document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+  document.querySelectorAll('.field-error-msg').forEach(el => { el.classList.remove('show'); el.textContent=''; });
+  document.querySelectorAll('.section.has-error').forEach(el => el.classList.remove('has-error'));
+}
+
+function validateAll() {
+  clearErrors();
+  const errors = []; // {msg, sectionId, focusId}
+  const zh = currentLang === 'zh';
+
+  // ── SECTION 1: Basic customer info ──
+  const reqFields = [
+    { id: 'f_date',      label: zh ? '日期' : 'Date' },
+    { id: 'f_fname',     label: zh ? '名字' : 'First Name' },
+    { id: 'f_lname',     label: zh ? '姓氏' : 'Last Name' },
+    { id: 'f_yob',       label: zh ? '出生年份' : 'Year of Birth' },
+    { id: 'f_profession',label: zh ? '職業' : 'Profession' },
+    { id: 'f_address',   label: zh ? '地址' : 'Address' },
+    { id: 'f_town',      label: zh ? '城市' : 'Town' },
+    { id: 'f_country',   label: zh ? '國家' : 'Country' },
+    { id: 'f_tel',       label: zh ? '電話' : 'Telephone' },
+    { id: 'f_email',     label: zh ? '電子信箱' : 'Email' },
+  ];
+  let sec1HasError = false;
+  reqFields.forEach(({id, label}) => {
+    const el = document.getElementById(id);
+    if (!el || !el.value.trim()) {
+      markError(el, zh ? `${label} 為必填` : `${label} is required`);
+      if (!sec1HasError) errors.push({ msg: zh ? `客戶資料未完整：${label}` : `Customer info incomplete: ${label}`, sectionId: 'sec-customer', focusId: id });
+      sec1HasError = true;
+      document.getElementById('sec-customer').classList.add('has-error');
+    }
+  });
+
+  // ── FRAME ↔ OPTIC COMPATIBILITY ──
+  if (selectedOptic && document.getElementById('f_frame').value) {
+    const frame = document.getElementById('f_frame').value;
+    const allowed = FRAME_COMPAT[frame];
+    const { type, mag, wd } = selectedOptic;
+    const wdNum = parseInt(wd);
+    const itaOneOnly = ['ITA', 'ITA - Extended Fit', 'ONE'];
+
+    if (allowed && !allowed.includes(type)) {
+      document.getElementById('sec-optics').classList.add('has-error');
+      document.getElementById('f_frame').classList.add('field-error');
+      errors.push({
+        msg: zh ? `${frame} 不支援 ${type} — 請更換鏡架或倍率` : `${frame} is incompatible with ${type} — change frame or optic`,
+        sectionId: 'sec-optics', focusId: 'f_frame'
+      });
+    } else if (type === 'Galilean' && wdNum >= 600 && (mag !== '2.5x' && mag !== '3.0x')) {
+      document.getElementById('sec-optics').classList.add('has-error');
+      errors.push({
+        msg: zh ? `Galilean ${mag} 不支援 ${wd}mm 工作距離` : `Galilean ${mag} does not support ${wd}mm working distance`,
+        sectionId: 'sec-optics', focusId: null
+      });
+    } else if (type === 'Galilean' && wdNum >= 600 && !itaOneOnly.includes(frame)) {
+      document.getElementById('sec-optics').classList.add('has-error');
+      document.getElementById('f_frame').classList.add('field-error');
+      errors.push({
+        msg: zh ? `${wd}mm 工作距離僅限 ITA 或 ONE 鏡架` : `${wd}mm working distance requires ITA or ONE frame`,
+        sectionId: 'sec-optics', focusId: 'f_frame'
+      });
+    }
+  }
+
+  // ── SECTION 2: Optics ──
+  if (!selectedOptic) {
+    document.getElementById('sec-optics').classList.add('has-error');
+    errors.push({ msg: zh ? '請選擇倍率與工作距離' : 'Magnification & working distance required', sectionId: 'sec-optics', focusId: null });
+  }
+
+  // ── SECTION 4: Prescription ──
+  const lensType = document.querySelector('input[name=lens_type]:checked');
+  if (!lensType) {
+    document.getElementById('sec-rx').classList.add('has-error');
+    errors.push({ msg: zh ? '請選擇矯正類型' : 'Correction type required', sectionId: 'sec-rx', focusId: 'lens-type-group' });
+  } else if (lensType.value !== 'neutral' && lensType.value !== 'neutral_cl') {
+    let rxErr = false;
+
+    // Distance SPH required for both eyes
+    const odSph = document.getElementById('rx_od_dist_sph').value;
+    const osSph = document.getElementById('rx_os_dist_sph').value;
+    if (!odSph) { markError(document.getElementById('rx_od_dist_sph'), zh ? '必填' : 'Required'); rxErr = true; }
+    if (!osSph) { markError(document.getElementById('rx_os_dist_sph'), zh ? '必填' : 'Required'); rxErr = true; }
+    if (rxErr) {
+      document.getElementById('sec-rx').classList.add('has-error');
+      errors.push({ msg: zh ? '處方遠用 SPH 為必填（兩眼）' : 'Distance SPH required for both eyes', sectionId: 'sec-rx', focusId: 'rx_od_dist_sph' });
+    }
+
+    // Ergo Advanced → Reading mandatory
+    if (selectedOptic && selectedOptic.type === 'Ergo') {
+      const odRead = document.getElementById('rx_od_read_sph').value;
+      const osRead = document.getElementById('rx_os_read_sph').value;
+      let ergoErr = false;
+      if (!odRead) { markError(document.getElementById('rx_od_read_sph'), zh ? 'Ergo必填' : 'Required for Ergo'); ergoErr = true; }
+      if (!osRead) { markError(document.getElementById('rx_os_read_sph'), zh ? 'Ergo必填' : 'Required for Ergo'); ergoErr = true; }
+      if (ergoErr) {
+        document.getElementById('sec-rx').classList.add('has-error');
+        errors.push({ msg: zh ? 'Ergo Advanced 必須填寫近用度數（兩眼 Reading SPH）' : 'Ergo Advanced requires Reading SPH for both eyes', sectionId: 'sec-rx', focusId: 'rx_od_read_sph' });
+      }
+    }
+
+    // CYL filled → AXIS must also be filled
+    const cylAxisPairs = [
+      ['rx_od_dist_cyl', 'rx_od_dist_axis', zh ? '右眼遠用' : 'OD Distance'],
+      ['rx_os_dist_cyl', 'rx_os_dist_axis', zh ? '左眼遠用' : 'OS Distance'],
+      ['rx_od_int_cyl',  'rx_od_int_axis',  zh ? '右眼中距' : 'OD Intermediate'],
+      ['rx_os_int_cyl',  'rx_os_int_axis',  zh ? '左眼中距' : 'OS Intermediate'],
+      ['rx_od_read_cyl', 'rx_od_read_axis', zh ? '右眼近用' : 'OD Reading'],
+      ['rx_os_read_cyl', 'rx_os_read_axis', zh ? '左眼近用' : 'OS Reading'],
+    ];
+    cylAxisPairs.forEach(([cylId, axisId, label]) => {
+      const cylVal = document.getElementById(cylId).value;
+      const axisVal = document.getElementById(axisId).value;
+      if (cylVal && cylVal !== '0' && !axisVal) {
+        markError(document.getElementById(axisId), zh ? 'CYL有值時必填' : 'Required when CYL is set');
+        document.getElementById('sec-rx').classList.add('has-error');
+        errors.push({ msg: zh ? `${label} CYL 有值，AXIS 為必填` : `${label}: AXIS required when CYL is filled`, sectionId: 'sec-rx', focusId: axisId });
+      }
+    });
+  }
+
+  // ── SECTION 5: IPD — all 9 fields required + validation ──
+  const ipdIds = ['ipd_r1','ipd_r2','ipd_r3','ipd_l1','ipd_l2','ipd_l3'];
+  const ipdLabels = zh
+    ? ['右眼第1次','右眼第2次','右眼第3次','左眼第1次','左眼第2次','左眼第3次']
+    : ['R Meas.1','R Meas.2','R Meas.3','L Meas.1','L Meas.2','L Meas.3'];
+  let ipdMissing = false;
+  let firstMissingIpd = null;
+  ipdIds.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el.value) {
+      markError(el, zh ? '必填' : 'Required');
+      if (!ipdMissing) firstMissingIpd = id;
+      ipdMissing = true;
+    }
+  });
+  if (ipdMissing) {
+    document.getElementById('sec-ipd').classList.add('has-error');
+    errors.push({ msg: zh ? 'IPD 九次測量均為必填' : 'All 9 IPD measurements required', sectionId: 'sec-ipd', focusId: firstMissingIpd });
+  } else {
+    // All filled — run validation rules
+    const rVals = ['ipd_r1','ipd_r2','ipd_r3'].map(id => parseFloat(document.getElementById(id).value));
+    const lVals = ['ipd_l1','ipd_l2','ipd_l3'].map(id => parseFloat(document.getElementById(id).value));
+    const rLabel = zh ? '右眼' : 'Right Eye';
+    const lLabel = zh ? '左眼' : 'Left Eye';
+    const rRes = validateIPDEye(rVals, rLabel);
+    const lRes = validateIPDEye(lVals, lLabel);
+    if (!rRes.valid || !lRes.valid) {
+      document.getElementById('sec-ipd').classList.add('has-error');
+      [...rRes.errors, ...lRes.errors].forEach(msg => {
+        errors.push({ msg, sectionId: 'sec-ipd', focusId: 'sec-ipd' });
+      });
+    }
+  }
+
+  return errors;
+}
+
+function showValidationModal(errors) {
+  const modal = document.getElementById('validation-modal');
+  const list = document.getElementById('modal-error-list');
+  const zh = currentLang === 'zh';
+  list.innerHTML = '';
+  errors.forEach(({msg, sectionId, focusId}) => {
+    const item = document.createElement('div');
+    item.className = 'modal-error-item';
+    item.innerHTML = `<span class="modal-error-icon">✗</span><span class="modal-error-text">${msg}</span>`;
+    item.onclick = () => {
+      closeModal();
+      const target = document.getElementById(focusId || sectionId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => { if (target.focus) target.focus(); }, 400);
+      }
+    };
+    list.appendChild(item);
+  });
+  document.getElementById('modal-title').textContent = zh ? `發現 ${errors.length} 個必填問題` : `${errors.length} required field${errors.length>1?'s':''} incomplete`;
+  document.getElementById('modal-hint').textContent = zh ? '點擊任一項目可跳轉到對應欄位' : 'Click any item to jump to that field';
+  modal.classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('validation-modal').classList.remove('show');
+}
+
+
+// ============================================================
+// EXPORT — fills original Univet template with form data
+// ============================================================
+const TEMPLATE_B64 = "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";
+
+function collectFormData() {
+  const getV = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const getRadio = name => { const el = document.querySelector(`input[name=${name}]:checked`); return el ? el.value : ''; };
+  return {
+    date: getV('f_date'), fname: getV('f_fname'), lname: getV('f_lname'),
+    yob: getV('f_yob'), profession: getV('f_profession'), specialty: getV('f_specialty'),
+    address: getV('f_address'), town: getV('f_town'), country: getV('f_country'),
+    tel: getV('f_tel'), email: getV('f_email'),
+    optic: selectedOptic ? `${selectedOptic.type}|${selectedOptic.mag}` : '',
+    wd: selectedOptic ? selectedOptic.wd : '',
+    frame: getV('f_frame'), frame_color: getV('f_color'),
+    custom_case: getV('f_custom_case'), custom_frame: getV('f_custom_frame'),
+    note: getV('f_note'),
+    lens_type: getRadio('lens_type'),
+    rx: {
+      od_dist_sph: getV('rx_od_dist_sph'), od_dist_cyl: getV('rx_od_dist_cyl'), od_dist_axis: getV('rx_od_dist_axis'),
+      os_dist_sph: getV('rx_os_dist_sph'), os_dist_cyl: getV('rx_os_dist_cyl'), os_dist_axis: getV('rx_os_dist_axis'),
+      od_int_sph:  getV('rx_od_int_sph'),  od_int_cyl:  getV('rx_od_int_cyl'),  od_int_axis:  getV('rx_od_int_axis'),
+      os_int_sph:  getV('rx_os_int_sph'),  os_int_cyl:  getV('rx_os_int_cyl'),  os_int_axis:  getV('rx_os_int_axis'),
+      od_read_sph: getV('rx_od_read_sph'), od_read_cyl: getV('rx_od_read_cyl'), od_read_axis: getV('rx_od_read_axis'),
+      os_read_sph: getV('rx_os_read_sph'), os_read_cyl: getV('rx_os_read_cyl'), os_read_axis: getV('rx_os_read_axis'),
+      od_add: getV('rx_od_add'), os_add: getV('rx_os_add'),
+    },
+    decl: getRadio('decl') || 'MAX',
+    ipd: {
+      r1: getV('ipd_r1'), r2: getV('ipd_r2'), r3: getV('ipd_r3'),
+      l1: getV('ipd_l1'), l2: getV('ipd_l2'), l3: getV('ipd_l3'),
+    },
+    headlight: selectedHeadlight || '',
+    accessories: [...selectedAccs],
+  };
+}
+
+async function exportXLSX() {
+  const errors = validateAll();
+  if (errors.length > 0) {
+    showValidationModal(errors);
+    const firstSec = document.getElementById(errors[0].sectionId);
+    if (firstSec) firstSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const data = collectFormData();
+  const fname = data.lname || data.fname || 'Order';
+  const date = (data.date || new Date().toISOString().slice(0,10)).replace(/\//g,'-');
+  const filename = `Univet_Order_${fname}_${date}.xlsx`;
+
+  // ── API URL ──
+  // 本機測試：python app.py 後自動用 localhost
+  // 部署後：把下面改成你的 Render URL，例如：
+  // const API_URL = 'https://univet-order-export.onrender.com';
+  const API_URL = 'http://localhost:7788';
+
+  // Try Python server (exact format + PDF)
+  try {
+    const resp = await fetch(`${API_URL}/export`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: AbortSignal.timeout(35000),
+    });
+    if (resp.ok) {
+      const zipBlob = await resp.blob();
+      // Unzip and trigger separate downloads for xlsx and pdf
+      const zipAB = await zipBlob.arrayBuffer();
+      const zip = new JSZip();
+      const contents = await zip.loadAsync(zipAB);
+      for (const [name, file] of Object.entries(contents.files)) {
+        if (file.dir) continue;
+        const fileBlob = await file.async('blob');
+        const url = URL.createObjectURL(fileBlob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+        URL.revokeObjectURL(url);
+        await new Promise(r => setTimeout(r, 300)); // small gap between downloads
+      }
+      return;
+    }
+  } catch(e) {
+    // Server not running — fall through to SheetJS fallback
+  }
+
+  // Fallback: SheetJS only (xlsx, no PDF)
+  exportFallbackSheetJS(data, filename);
+}
+
+function exportFallbackSheetJS(data, filename) {
+  // Load original template
+  const binary = atob(TEMPLATE_B64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const wb = XLSX.read(bytes, { type: 'array', cellStyles: true, bookVBA: true });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+
+  function setCell(addr, val) {
+    if (val === null || val === undefined || val === '') return;
+    if (!ws[addr]) ws[addr] = { t: 's', v: '', w: '' };
+    ws[addr].v = val;
+    ws[addr].t = typeof val === 'number' ? 'n' : 's';
+    ws[addr].w = String(val);
+    // preserve formula cells — don't overwrite with value
+    delete ws[addr].f;
+  }
+
+  setCell('D6',  data.date);
+  setCell('D7',  data.fname);
+  setCell('E8',  data.lname);
+  setCell('E9',  data.yob);
+  setCell('D10', data.profession);
+  setCell('D11', data.specialty);
+  setCell('D12', data.address);
+  setCell('D13', data.town);
+  setCell('D14', data.country);
+  setCell('D15', data.tel);
+  setCell('D16', data.email);
+
+  const WD_COLS = {'300':'F','350':'G','400':'H','450':'I','500':'J','550':'K','600':'L','700':'M'};
+  const OPTIC_ROWS = {
+    'Galilean|2.0x':20,'Galilean|2.5x':21,'Galilean|3.0x':22,'Galilean|3.5x':23,
+    'Prismatic|3.5x':24,'Prismatic|4.0x':25,'Prismatic|5.0x':26,
+    'Ergo|3.5x':27,'Ergo|4.5x':28,'Ergo|5.7x':29,
+  };
+  if (data.optic && data.wd) {
+    const row = OPTIC_ROWS[data.optic];
+    const col = WD_COLS[String(data.wd)];
+    if (row && col) setCell(`${col}${row}`, '✓');
+  }
+
+  const FRAME_ROWS = {
+    'Look':31,'Cool':32,'Techne 2025':33,'Techne [Old]':34,'Techne RX [Old]':35,
+    'Techne ASIAN FITTING [OLD]':36,'Techne RX ASIAN FITTING [OLD]':37,
+    'Ash 55-17':38,'Ash 53-17':39,'ITA':40,'ITA - Extended Fit':41,'ONE':42,
+  };
+  const fRow = FRAME_ROWS[data.frame];
+  if (fRow) { setCell(`D${fRow}`, '✓'); setCell(`E${fRow}`, data.frame_color); }
+
+  setCell('E46', data.custom_case);
+  setCell('E47', data.custom_frame);
+  setCell('N44', data.note);
+
+  const LENS_ROWS = {neutral:53,neutral_cl:55,distance:57,intermediate:59,reading:61,bifocal:63};
+  const ltRow = LENS_ROWS[data.lens_type];
+  if (ltRow) setCell(`I${ltRow}`, '✓');
+
+  const rx = data.rx || {};
+  [['dist',69],['int',70],['read',71]].forEach(([d,r]) => {
+    setCell(`F${r}`, rx[`od_${d}_sph`]); setCell(`G${r}`, rx[`od_${d}_cyl`]); setCell(`H${r}`, rx[`od_${d}_axis`]);
+    setCell(`J${r}`, rx[`os_${d}_sph`]); setCell(`K${r}`, rx[`os_${d}_cyl`]); setCell(`M${r}`, rx[`os_${d}_axis`]);
+  });
+  setCell('F72', rx.od_add); setCell('J72', rx.os_add);
+
+  const DECL_CELLS = {'18':'D75','22':'G75','MAX':'J75'};
+  const dc = DECL_CELLS[data.decl || 'MAX'];
+  if (dc) setCell(dc, '✓');
+
+  const ipd = data.ipd || {};
+  setCell('F80', ipd.r1); setCell('G80', ipd.r2); setCell('H80', ipd.r3);
+  setCell('I80', ipd.l1); setCell('J80', ipd.l2); setCell('L80', ipd.l3);
+
+  const HL_ROWS = {'LYNX':53,'LYNX PRO':55,'EOS Wireless':57};
+  if (data.headlight && HL_ROWS[data.headlight]) setCell(`T${HL_ROWS[data.headlight]}`, '✓');
+
+  const ACC_MAP = {'701 Overloupes':'T69','710 Overloupes':'T71','Antifog cloth':'T71','Case Loupe&Headlight':'T73','Custom Magnetic Adapter':'T63'};
+  (data.accessories || []).forEach(acc => { if (ACC_MAP[acc]) setCell(ACC_MAP[acc], '✓'); });
+
+  XLSX.writeFile(wb, filename, { bookType: 'xlsx', cellStyles: true, bookSST: true, compression: true });
+}
+
+
+</script>
+<!-- VALIDATION MODAL -->
+<div class="modal-overlay" id="validation-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-header" id="modal-title">Incomplete fields</div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--text-light);margin-bottom:12px" id="modal-hint">Click any item to jump to that field</p>
+      <div id="modal-error-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-close" onclick="closeModal()" data-i18n-onclick="closeModal">OK</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
