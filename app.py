@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Univet Order Form Export API"""
 import json, io, os, subprocess, tempfile, zipfile, shutil
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, send_file
 from flask_cors import CORS
 from openpyxl import load_workbook
 
@@ -18,6 +17,7 @@ def fill_template(data):
         if val is None or val == '': return
         ws[addr] = val
 
+    # Customer info
     w('D6',  data.get('date',''))
     w('D7',  data.get('fname',''))
     w('E8',  data.get('lname',''))
@@ -30,6 +30,7 @@ def fill_template(data):
     w('D15', data.get('tel',''))
     w('D16', data.get('email',''))
 
+    # WD selection
     wd_col = {'300':6,'350':7,'400':8,'450':9,'500':10,'550':11,'600':12,'700':13}
     optic_row = {
         'Galilean|2.0x':20,'Galilean|2.5x':21,'Galilean|3.0x':22,'Galilean|3.5x':23,
@@ -41,6 +42,7 @@ def fill_template(data):
     if row and col:
         ws.cell(row=row, column=col).value = '✓'
 
+    # Frame
     frame_row = {
         'Look':31,'Cool':32,'Techne 2025':33,'Techne [Old]':34,'Techne RX [Old]':35,
         'Techne ASIAN FITTING [OLD]':36,'Techne RX ASIAN FITTING [OLD]':37,
@@ -51,15 +53,20 @@ def fill_template(data):
         ws.cell(row=fr, column=4).value = '✓'
         ws.cell(row=fr, column=5).value = data.get('frame_color','')
 
+    # Customization — E46:J46 = Case, E47:J47 = Frame, N44 = Note
     w('E46', data.get('custom_case',''))
     w('E47', data.get('custom_frame',''))
     w('N44', data.get('note',''))
 
+    # Lens type
     lens_row = {'neutral':53,'neutral_cl':55,'distance':57,'intermediate':59,'reading':61,'bifocal':63}
     lr = lens_row.get(data.get('lens_type',''))
     if lr:
         ws.cell(row=lr, column=9).value = '✓'
 
+    # RX values
+    # OD: F(sph), G(cyl), H(axis)  OS: J(sph), K(cyl), M(axis)
+    # Row 69=Distance, 70=Interm, 71=Reading, 72=Add
     rx = data.get('rx', {})
     for dist, rn in [('dist',69),('int',70),('read',71)]:
         for eye, cols in [('od',(6,7,8)),('os',(10,11,13))]:
@@ -76,24 +83,29 @@ def fill_template(data):
             except: pass
             ws.cell(row=72, column=cn).value = val
 
+    # Declination — col D=18°, G=22°, J=MAX
     decl_col = {'18':4,'22':7,'MAX':10}
     dc = decl_col.get(data.get('decl','MAX'))
     if dc:
         ws.cell(row=75, column=dc).value = '✓'
 
+    # IPD — Right: F80,G80,H80  Left: I80,J80,L80  Total: auto formula M80,N80,O80
     ipd = data.get('ipd', {})
-    for key, addr in [('r1','F80'),('r2','G80'),('r3','H80'),('l1','I80'),('l2','J80'),('l3','L80')]:
+    for key, addr in [('r1','F80'),('r2','G80'),('r3','H80'),
+                      ('l1','I80'),('l2','J80'),('l3','L80')]:
         val = ipd.get(key)
         if val not in (None,''):
             try: val = float(val)
             except: pass
             ws[addr] = val
 
+    # Headlight — col T
     hl_row = {'LYNX':53,'LYNX PRO':55,'EOS Wireless':57}
     hr = hl_row.get(data.get('headlight',''))
     if hr:
         ws.cell(row=hr, column=20).value = '✓'
 
+    # Accessories — col T
     acc_map = {
         '701 Overloupes':(69,20),'710 Overloupes':(71,20),
         'Antifog cloth':(71,20),'Case Loupe&Headlight':(73,20),
@@ -104,32 +116,43 @@ def fill_template(data):
         if pos:
             ws.cell(row=pos[0], column=pos[1]).value = '✓'
 
+    # Save to buffer
     buf = io.BytesIO()
     wb.save(buf)
-    buf.seek(0)
-    return buf.getvalue()
+    filled_bytes = buf.getvalue()
+
+    # Re-inject images/drawings from original template (openpyxl drops them)
+    result_buf = io.BytesIO()
+    with zipfile.ZipFile(io.BytesIO(filled_bytes), 'r') as filled_zip:
+        filled_names = set(filled_zip.namelist())
+        with zipfile.ZipFile(TEMPLATE_PATH, 'r') as orig_zip:
+            with zipfile.ZipFile(result_buf, 'w', zipfile.ZIP_DEFLATED) as out_zip:
+                for item in filled_zip.namelist():
+                    out_zip.writestr(item, filled_zip.read(item))
+                for item in orig_zip.namelist():
+                    if item not in filled_names and ('/media/' in item or '/drawings/' in item):
+                        out_zip.writestr(item, orig_zip.read(item))
+
+    result_buf.seek(0)
+    return result_buf.getvalue()
 
 
 def xlsx_to_pdf(xlsx_bytes):
-    """Convert xlsx bytes to PDF bytes using LibreOffice."""
     tmpdir = tempfile.mkdtemp()
     try:
         xlsx_path = os.path.join(tmpdir, 'order.xlsx')
         with open(xlsx_path, 'wb') as f:
             f.write(xlsx_bytes)
-
         result = subprocess.run(
             ['libreoffice', '--headless', '--convert-to', 'pdf',
              '--outdir', tmpdir, xlsx_path],
-            capture_output=True, text=True, timeout=30
+            capture_output=True, text=True, timeout=60
         )
         if result.returncode != 0:
             raise RuntimeError(f"LibreOffice failed: {result.stderr}")
-
         pdf_path = os.path.join(tmpdir, 'order.pdf')
         if not os.path.exists(pdf_path):
             raise RuntimeError("PDF not generated")
-
         with open(pdf_path, 'rb') as f:
             return f.read()
     finally:
@@ -145,22 +168,18 @@ def ping():
 def export():
     if request.method == 'OPTIONS':
         return '', 204
-
     data = request.get_json()
     fname = data.get('lname') or data.get('fname') or 'Order'
     date  = (data.get('date') or '').replace('/','') or 'nodate'
     base  = f"Univet_Order_{fname}_{date}"
 
-    # Generate xlsx
     xlsx_bytes = fill_template(data)
 
-    # Generate PDF via LibreOffice
     try:
         pdf_bytes = xlsx_to_pdf(xlsx_bytes)
     except Exception as e:
         pdf_bytes = None
 
-    # Package both into a zip
     zip_buf = io.BytesIO()
     with zipfile.ZipFile(zip_buf, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.writestr(f"{base}.xlsx", xlsx_bytes)
