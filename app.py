@@ -7,7 +7,7 @@ from openpyxl import load_workbook
 app = Flask(__name__)
 CORS(app)
 
-TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '2026_ORDER_FORM__eng__rev0.xlsx')
+TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '2026 ORDER FORM (eng) rev0.xlsx')
 
 def fill_template(data):
     wb = load_workbook(TEMPLATE_PATH)
