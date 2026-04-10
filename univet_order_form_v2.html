@@ -1155,6 +1155,7 @@ function setLang(l) {
   });
   onRxChange(); calcIPD();
   updateOpticRowVisibility();
+  updateErgoReadingHint();
 }
 const t = key => LANG[currentLang][key] || key;
 
@@ -1460,25 +1461,25 @@ function onOpticChange() {
 
 function onRxChange() {
   updateFeasibility();
-  // Live Ergo reading reminder
-  const ergoHint = document.getElementById('ergo-reading-hint');
-  if (ergoHint) {
-    const isErgo = selectedOptic && selectedOptic.type === 'Ergo';
-    const lt = document.querySelector('input[name=lens_type]:checked');
-    const needsRx = lt && lt.value !== 'neutral' && lt.value !== 'neutral_cl';
-    ergoHint.style.display = (isErgo && needsRx) ? 'block' : 'none';
+  updateErgoReadingHint();
+}
 
-    // Live highlight empty Reading SPH fields when Ergo is selected
-    ['rx_od_read_sph','rx_os_read_sph'].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (isErgo && needsRx && !el.value) {
-        el.classList.add('field-error');
-      } else {
-        el.classList.remove('field-error');
-      }
-    });
-  }
+function updateErgoReadingHint() {
+  const ergoHint = document.getElementById('ergo-reading-hint');
+  if (!ergoHint) return;
+  const isErgo = selectedOptic && selectedOptic.type === 'Ergo';
+  ergoHint.style.display = isErgo ? 'block' : 'none';
+
+  // Live highlight empty Reading SPH fields when Ergo is selected
+  ['rx_od_read_sph','rx_os_read_sph'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (isErgo && !el.value) {
+      el.classList.add('field-error');
+    } else {
+      el.classList.remove('field-error');
+    }
+  });
 }
 
 function autoFillReadingCyl(eye) {
@@ -1546,6 +1547,7 @@ function selectChip(el, name, val) {
   });
   el.classList.add('selected');
   updateFeasibility();
+  if (name === 'lens_type') updateErgoReadingHint();
 }
 
 function toggleSingle(el, group, val) {
@@ -1885,20 +1887,8 @@ function validateAll() {
   if (!lensType) {
     document.getElementById('sec-rx').classList.add('has-error');
     errors.push({ msg: zh ? '請選擇矯正類型' : 'Correction type required', sectionId: 'sec-rx', focusId: 'lens-type-group' });
-  } else if (lensType.value !== 'neutral' && lensType.value !== 'neutral_cl') {
-    let rxErr = false;
-
-    // Distance SPH required for both eyes
-    const odSph = document.getElementById('rx_od_dist_sph').value;
-    const osSph = document.getElementById('rx_os_dist_sph').value;
-    if (!odSph) { markError(document.getElementById('rx_od_dist_sph'), zh ? '必填' : 'Required'); rxErr = true; }
-    if (!osSph) { markError(document.getElementById('rx_os_dist_sph'), zh ? '必填' : 'Required'); rxErr = true; }
-    if (rxErr) {
-      document.getElementById('sec-rx').classList.add('has-error');
-      errors.push({ msg: zh ? '處方遠用 SPH 為必填（兩眼）' : 'Distance SPH required for both eyes', sectionId: 'sec-rx', focusId: 'rx_od_dist_sph' });
-    }
-
-    // Ergo Advanced → Reading mandatory
+  } else {
+    // Ergo Advanced → Reading mandatory regardless of lens type
     if (selectedOptic && selectedOptic.type === 'Ergo') {
       const odRead = document.getElementById('rx_od_read_sph').value;
       const osRead = document.getElementById('rx_os_read_sph').value;
@@ -1911,25 +1901,39 @@ function validateAll() {
       }
     }
 
-    // CYL filled → AXIS must also be filled
-    const cylAxisPairs = [
-      ['rx_od_dist_cyl', 'rx_od_dist_axis', zh ? '右眼遠用' : 'OD Distance'],
-      ['rx_os_dist_cyl', 'rx_os_dist_axis', zh ? '左眼遠用' : 'OS Distance'],
-      ['rx_od_int_cyl',  'rx_od_int_axis',  zh ? '右眼中距' : 'OD Intermediate'],
-      ['rx_os_int_cyl',  'rx_os_int_axis',  zh ? '左眼中距' : 'OS Intermediate'],
-      ['rx_od_read_cyl', 'rx_od_read_axis', zh ? '右眼近用' : 'OD Reading'],
-      ['rx_os_read_cyl', 'rx_os_read_axis', zh ? '左眼近用' : 'OS Reading'],
-    ];
-    cylAxisPairs.forEach(([cylId, axisId, label]) => {
-      const cylVal = document.getElementById(cylId).value;
-      const axisVal = document.getElementById(axisId).value;
-      const cylNum = parseFloat(cylVal);
-      if (cylVal !== '' && !isNaN(cylNum) && cylNum !== 0 && !axisVal) {
-        markError(document.getElementById(axisId), zh ? 'CYL有值時必填' : 'Required when CYL is set');
+    if (lensType.value !== 'neutral' && lensType.value !== 'neutral_cl') {
+      let rxErr = false;
+
+      // Distance SPH required for both eyes
+      const odSph = document.getElementById('rx_od_dist_sph').value;
+      const osSph = document.getElementById('rx_os_dist_sph').value;
+      if (!odSph) { markError(document.getElementById('rx_od_dist_sph'), zh ? '必填' : 'Required'); rxErr = true; }
+      if (!osSph) { markError(document.getElementById('rx_os_dist_sph'), zh ? '必填' : 'Required'); rxErr = true; }
+      if (rxErr) {
         document.getElementById('sec-rx').classList.add('has-error');
-        errors.push({ msg: zh ? `${label} CYL 有值，AXIS 為必填` : `${label}: AXIS required when CYL is filled`, sectionId: 'sec-rx', focusId: axisId });
+        errors.push({ msg: zh ? '處方遠用 SPH 為必填（兩眼）' : 'Distance SPH required for both eyes', sectionId: 'sec-rx', focusId: 'rx_od_dist_sph' });
       }
-    });
+
+      // CYL filled → AXIS must also be filled
+      const cylAxisPairs = [
+        ['rx_od_dist_cyl', 'rx_od_dist_axis', zh ? '右眼遠用' : 'OD Distance'],
+        ['rx_os_dist_cyl', 'rx_os_dist_axis', zh ? '左眼遠用' : 'OS Distance'],
+        ['rx_od_int_cyl',  'rx_od_int_axis',  zh ? '右眼中距' : 'OD Intermediate'],
+        ['rx_os_int_cyl',  'rx_os_int_axis',  zh ? '左眼中距' : 'OS Intermediate'],
+        ['rx_od_read_cyl', 'rx_od_read_axis', zh ? '右眼近用' : 'OD Reading'],
+        ['rx_os_read_cyl', 'rx_os_read_axis', zh ? '左眼近用' : 'OS Reading'],
+      ];
+      cylAxisPairs.forEach(([cylId, axisId, label]) => {
+        const cylVal = document.getElementById(cylId).value;
+        const axisVal = document.getElementById(axisId).value;
+        const cylNum = parseFloat(cylVal);
+        if (cylVal !== '' && !isNaN(cylNum) && cylNum !== 0 && !axisVal) {
+          markError(document.getElementById(axisId), zh ? 'CYL有值時必填' : 'Required when CYL is set');
+          document.getElementById('sec-rx').classList.add('has-error');
+          errors.push({ msg: zh ? `${label} CYL 有值，AXIS 為必填` : `${label}: AXIS required when CYL is filled`, sectionId: 'sec-rx', focusId: axisId });
+        }
+      });
+    }
   }
 
   // ── SECTION 5: IPD — all 9 fields required + validation ──
