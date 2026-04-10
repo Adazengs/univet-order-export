@@ -1467,6 +1467,17 @@ function onRxChange() {
     const lt = document.querySelector('input[name=lens_type]:checked');
     const needsRx = lt && lt.value !== 'neutral' && lt.value !== 'neutral_cl';
     ergoHint.style.display = (isErgo && needsRx) ? 'block' : 'none';
+
+    // Live highlight empty Reading SPH fields when Ergo is selected
+    ['rx_od_read_sph','rx_os_read_sph'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (isErgo && needsRx && !el.value) {
+        el.classList.add('field-error');
+      } else {
+        el.classList.remove('field-error');
+      }
+    });
   }
 }
 
@@ -1483,7 +1494,7 @@ function autoFillReadingCyl(eye) {
   const readAxisEl = document.getElementById(`rx_${eye}_read_axis`);
 
   // Only auto-fill if reading CYL/AXIS are still empty
-  if (distCyl && !readCylEl.value) {
+  if (distCyl && parseFloat(distCyl) !== 0 && !readCylEl.value) {
     readCylEl.value = distCyl;
   }
   if (distAxis && !readAxisEl.value) {
@@ -1493,8 +1504,9 @@ function autoFillReadingCyl(eye) {
 
 function checkCylAxis(cylId, axisId) {
   const cylVal = document.getElementById(cylId).value;
+  const cylNum = parseFloat(cylVal);
   const axisEl = document.getElementById(axisId);
-  if (cylVal && parseFloat(cylVal) !== 0 && !axisEl.value) {
+  if (cylVal !== '' && !isNaN(cylNum) && cylNum !== 0 && !axisEl.value) {
     axisEl.classList.add('field-error');
     let msg = axisEl.parentElement.querySelector('.field-error-msg');
     if (!msg) { msg = document.createElement('div'); msg.className = 'field-error-msg'; axisEl.parentElement.appendChild(msg); }
@@ -1911,7 +1923,8 @@ function validateAll() {
     cylAxisPairs.forEach(([cylId, axisId, label]) => {
       const cylVal = document.getElementById(cylId).value;
       const axisVal = document.getElementById(axisId).value;
-      if (cylVal && cylVal !== '0' && !axisVal) {
+      const cylNum = parseFloat(cylVal);
+      if (cylVal !== '' && !isNaN(cylNum) && cylNum !== 0 && !axisVal) {
         markError(document.getElementById(axisId), zh ? 'CYL有值時必填' : 'Required when CYL is set');
         document.getElementById('sec-rx').classList.add('has-error');
         errors.push({ msg: zh ? `${label} CYL 有值，AXIS 為必填` : `${label}: AXIS required when CYL is filled`, sectionId: 'sec-rx', focusId: axisId });
