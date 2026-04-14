@@ -1032,7 +1032,7 @@
     <!-- Legend -->
     <div style="margin-top:16px;padding:14px 16px;background:var(--white);border-radius:var(--radius);border:1px solid var(--green-border);font-size:12px;color:var(--text-mid);">
       <div style="font-weight:600;margin-bottom:8px;color:var(--text-dark)" data-i18n="legend">Legend</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge ok">✓ OK</span> <span data-i18n="legendOk">Within feasibility range</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge ok">√ OK</span> <span data-i18n="legendOk">Within feasibility range</span></div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge warn">✗ Out</span> <span data-i18n="legendOut">Outside feasibility range</span></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="badge na">—</span> <span data-i18n="legendNa">Not yet entered</span></div>
     </div>
@@ -1072,11 +1072,11 @@ const LANG = {
     decl: 'Declination Angle (Optional)', maxDecl: 'MAX (default)',
     headlight: 'Headlight', accessories: 'Accessories',
     antifog: 'Antifog cloth', loupeCase: 'Case (Loupe & Headlight)', magAdapter: 'Custom Magnetic Adapter',
-    accOptional: '可選 — 點擊選取，再次點擊取消',
+    accOptional: 'Optional — click to select, click again to deselect',
     reqNote: 'Required field',
     ergoReadingHint: 'Reading SPH is mandatory for both eyes when using Ergo Advanced.',
     feasWaiting: 'Waiting for input', feasWaitingSub: 'Fill in optic selection and prescription',
-    feasOK: 'Feasible ✓', feasOKSub: 'Prescription within range for selected optic',
+    feasOK: 'Feasible √', feasOKSub: 'Prescription within range for selected optic',
     feasFail: 'Not Feasible ✗', feasFailSub: 'Prescription outside range — contact Univet CS',
     feasPartial: 'Partially Feasible', feasPartialSub: 'One eye outside range',
     feasNoRx: 'No RX required', feasNoRxSub: 'Neutral or contact lens option selected',
@@ -1122,7 +1122,7 @@ const LANG = {
     ergoReadingHint: '選擇 Ergo Advanced 時，兩眼的近用度數（Reading SPH）為必填。',
     feasCheck: '處方可行性', feasSub: '即時驗證',
     feasWaiting: '等待輸入', feasWaitingSub: '請選擇光學並填入處方',
-    feasOK: '可以製作 ✓', feasOKSub: '處方在所選光學的可行範圍內',
+    feasOK: '可以製作 √', feasOKSub: '處方在所選光學的可行範圍內',
     feasFail: '無法製作 ✗', feasFailSub: '處方超出範圍——請聯絡 Univet 客服',
     feasPartial: '部分可行', feasPartialSub: '其中一眼超出範圍',
     feasNoRx: '無需處方', feasNoRxSub: '已選擇無度數或隱形眼鏡模式',
@@ -1253,9 +1253,11 @@ function getTableKey(type, mag, wd) {
   if (type === 'Ergo') {
     if (magClean === '3.5') {
       // Available: 400,450,500,550,600mm
-      const wds = [400, 450, 500, 550, 600];
+      const wds = [350, 400, 450, 500, 550, 600];
       const nearest = wds.reduce((a, b) => Math.abs(b - wdNum) < Math.abs(a - wdNum) ? b : a);
-      return `Ergo_3.5x_${nearest}`;
+      // Ergo_3.5x_350 may not have its own table — fall back to 400 if missing
+      const key = `Ergo_3.5x_${nearest}`;
+      return RX_TABLES[key] ? key : `Ergo_3.5x_400`;
     }
     if (magClean === '4.5') return 'Ergo_4.5x';
     if (magClean === '5.7') return 'Ergo_5.7x';
@@ -1611,7 +1613,7 @@ function updateFeasibility() {
   // Neutral cases
   if (lensVal === 'neutral' || lensVal === 'neutral_cl') {
     mainEl.className = 'feas-status ok';
-    mainEl.innerHTML = `<div class="feas-icon">✓</div><div><div class="feas-label">${t('feasNoRx')}</div><div class="feas-detail">${t('feasNoRxSub')}</div></div>`;
+    mainEl.innerHTML = `<div class="feas-icon">√</div><div><div class="feas-label">${t('feasNoRx')}</div><div class="feas-detail">${t('feasNoRxSub')}</div></div>`;
     odResEl.innerHTML = `<span class="badge na">N/A</span>`;
     osResEl.innerHTML = `<span class="badge na">N/A</span>`;
     return;
@@ -1639,8 +1641,8 @@ function updateFeasibility() {
   const odOk = (odSph === null) ? null : checkFeasibility(type, mag, wd, odSph, odCyl || 0, frame, lensVal2);
   const osOk = (osSph === null) ? null : checkFeasibility(type, mag, wd, osSph, osCyl || 0, frame, lensVal2);
 
-  odResEl.innerHTML = odOk === null ? `<span class="badge na">—</span>` : odOk ? `<span class="badge ok">✓ OK</span>` : `<span class="badge warn">✗ Out</span>`;
-  osResEl.innerHTML = osOk === null ? `<span class="badge na">—</span>` : osOk ? `<span class="badge ok">✓ OK</span>` : `<span class="badge warn">✗ Out</span>`;
+  odResEl.innerHTML = odOk === null ? `<span class="badge na">—</span>` : odOk ? `<span class="badge ok">√ OK</span>` : `<span class="badge warn">✗ Out</span>`;
+  osResEl.innerHTML = osOk === null ? `<span class="badge na">—</span>` : osOk ? `<span class="badge ok">√ OK</span>` : `<span class="badge warn">✗ Out</span>`;
 
   const bothOk = (odOk !== false) && (osOk !== false) && (odOk !== null || osOk !== null);
   const anyFail = odOk === false || osOk === false;
@@ -1651,7 +1653,7 @@ function updateFeasibility() {
     mainEl.innerHTML = `<div class="feas-icon">✗</div><div><div class="feas-label">${t(bothFail ? 'feasFail' : 'feasPartial')}</div><div class="feas-detail">${t(bothFail ? 'feasFailSub' : 'feasPartialSub')}</div></div>`;
   } else {
     mainEl.className = 'feas-status ok';
-    mainEl.innerHTML = `<div class="feas-icon">✓</div><div><div class="feas-label">${t('feasOK')}</div><div class="feas-detail">${t('feasOKSub')}</div></div>`;
+    mainEl.innerHTML = `<div class="feas-icon">√</div><div><div class="feas-label">${t('feasOK')}</div><div class="feas-detail">${t('feasOKSub')}</div></div>`;
   }
 }
 
@@ -1784,9 +1786,9 @@ function calcIPD() {
     pdWarnEl.className = 'pd-warning warn show';
     pdWarnEl.innerHTML = allErrors.map(e => `⚠ ${e}`).join('<br>');
   } else if (allValid && (rResult || lResult)) {
-    pdFeasEl.innerHTML = `<span class="badge ok">✓ OK</span>`;
+    pdFeasEl.innerHTML = `<span class="badge ok">√ OK</span>`;
     pdWarnEl.className = 'pd-warning ok show';
-    pdWarnEl.textContent = `✓ ${t('pdOK')} (${limits[0]}–${limits[1]} mm/eye)`;
+    pdWarnEl.textContent = `√ ${t('pdOK')} (${limits[0]}–${limits[1]} mm/eye)`;
   } else {
     pdFeasEl.innerHTML = `<span class="badge na">—</span>`;
     pdWarnEl.className = 'pd-warning';
@@ -1824,6 +1826,7 @@ function validateAll() {
   // ── SECTION 1: Basic customer info ──
   const reqFields = [
     { id: 'f_date',      label: zh ? '日期' : 'Date' },
+    { id: 'f_agent',     label: zh ? '業務代表' : 'Sales Agent' },
     { id: 'f_fname',     label: zh ? '名字' : 'First Name' },
     { id: 'f_lname',     label: zh ? '姓氏' : 'Last Name' },
     { id: 'f_yob',       label: zh ? '出生年份' : 'Year of Birth' },
@@ -2011,7 +2014,8 @@ function collectFormData() {
   const getV = id => { const el = document.getElementById(id); return el ? el.value : ''; };
   const getRadio = name => { const el = document.querySelector(`input[name=${name}]:checked`); return el ? el.value : ''; };
   return {
-    date: getV('f_date'), fname: getV('f_fname'), lname: getV('f_lname'),
+    date: getV('f_date'), agent: getV('f_agent'),
+    fname: getV('f_fname'), lname: getV('f_lname'),
     yob: getV('f_yob'), profession: getV('f_profession'), specialty: getV('f_specialty'),
     address: getV('f_address'), town: getV('f_town'), country: getV('f_country'),
     tel: getV('f_tel'), email: getV('f_email'),
@@ -2057,8 +2061,13 @@ async function exportXLSX() {
   // ── API URL ──
   // 本機測試：python app.py 後自動用 localhost
   // 部署後：把下面改成你的 Render URL，例如：
-  // const API_URL = 'https://univet-order-export.onrender.com';
-  const API_URL = 'http://localhost:7788';
+  // // 自動偵測：本機開發用 localhost，部署後用當前 origin 或 Render URL
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const API_URL = isLocal
+    ? 'http://localhost:7788'
+    : (location.origin.includes('github.io')
+      ? 'https://univet-order-export.onrender.com'
+      : location.origin);
 
   // Try Python server (exact format + PDF)
   try {
@@ -2113,7 +2122,7 @@ function exportFallbackSheetJS(data, filename) {
 
   setCell('D6',  data.date);
   setCell('D7',  data.fname);
-  setCell('E8',  data.lname);
+  setCell('D8',  data.lname);
   setCell('E9',  data.yob);
   setCell('D10', data.profession);
   setCell('D11', data.specialty);
@@ -2132,7 +2141,7 @@ function exportFallbackSheetJS(data, filename) {
   if (data.optic && data.wd) {
     const row = OPTIC_ROWS[data.optic];
     const col = WD_COLS[String(data.wd)];
-    if (row && col) setCell(`${col}${row}`, '✓');
+    if (row && col) setCell(`${col}${row}`, '√');
   }
 
   const FRAME_ROWS = {
@@ -2140,16 +2149,40 @@ function exportFallbackSheetJS(data, filename) {
     'Techne ASIAN FITTING [OLD]':36,'Techne RX ASIAN FITTING [OLD]':37,
     'Ash 55-17':38,'Ash 53-17':39,'ITA':40,'ITA - Extended Fit':41,'ONE':42,
   };
+  // Frame color positions: each color label → column, check mark goes 1 column right
+  const FRAME_COLOR_COLS = {
+    'Look':       {'Ruby':'E','Emerald':'H'},
+    'Cool':       {'Ruby':'E','Emerald':'H'},
+    'Techne 2025':{'Black/Green':'E','White/Green':'H','Midnight Blue':'L','White/Wisteria':'O'},
+    'Techne [Old]':{'White/Red':'E','Black/Green':'H','White/Pink':'L','Black Edition':'O'},
+    'Techne RX [Old]':{'White/Red':'E','Black/Green':'H','White/Pink':'L'},
+    'Ash 55-17':  {'Black/Red':'E','Grey/Grey':'H','Purple/Grey':'L'},
+    'Ash 53-17':  {'Black/Red':'E','Grey/Grey':'H','Purple/Grey':'L'},
+    'ITA':        {'Midnight Blue':'E','Brown Endura':'H','Green Vespa':'L','Black Edition':'O'},
+    'ITA - Extended Fit':{'Black Edition':'O'},
+    'ONE':        {'Desert Sage':'E','Black Edition / Limited Edition':'O','Color Kit':'R'},
+  };
   const fRow = FRAME_ROWS[data.frame];
-  if (fRow) { setCell(`D${fRow}`, '✓'); setCell(`E${fRow}`, data.frame_color); }
+  if (fRow) {
+    const colorMap = FRAME_COLOR_COLS[data.frame] || {};
+    const colorCol = colorMap[data.frame_color];
+    if (colorCol) {
+      const nextCol = String.fromCharCode(colorCol.charCodeAt(0) + 1);
+      setCell(`${nextCol}${fRow}`, '√');
+    } else {
+      setCell(`D${fRow}`, '√');
+      setCell(`E${fRow}`, data.frame_color);
+    }
+  }
 
   setCell('E46', data.custom_case);
   setCell('E47', data.custom_frame);
   setCell('N44', data.note);
+  if (data.agent) setCell('E87', data.agent);
 
   const LENS_ROWS = {neutral:53,neutral_cl:55,distance:57,intermediate:59,reading:61,bifocal:63};
   const ltRow = LENS_ROWS[data.lens_type];
-  if (ltRow) setCell(`I${ltRow}`, '✓');
+  if (ltRow) setCell(`I${ltRow}`, '√');
 
   const rx = data.rx || {};
   [['dist',69],['int',70],['read',71]].forEach(([d,r]) => {
@@ -2160,17 +2193,17 @@ function exportFallbackSheetJS(data, filename) {
 
   const DECL_CELLS = {'18':'D75','22':'G75','MAX':'J75'};
   const dc = DECL_CELLS[data.decl || 'MAX'];
-  if (dc) setCell(dc, '✓');
+  if (dc) setCell(dc, '√');
 
   const ipd = data.ipd || {};
   setCell('F80', ipd.r1); setCell('G80', ipd.r2); setCell('H80', ipd.r3);
   setCell('I80', ipd.l1); setCell('J80', ipd.l2); setCell('L80', ipd.l3);
 
   const HL_ROWS = {'LYNX':53,'LYNX PRO':55,'EOS Wireless':57};
-  if (data.headlight && HL_ROWS[data.headlight]) setCell(`T${HL_ROWS[data.headlight]}`, '✓');
+  if (data.headlight && HL_ROWS[data.headlight]) setCell(`T${HL_ROWS[data.headlight]}`, '√');
 
-  const ACC_MAP = {'701 Overloupes':'T69','710 Overloupes':'T71','Antifog cloth':'T71','Case Loupe&Headlight':'T73','Custom Magnetic Adapter':'T63'};
-  (data.accessories || []).forEach(acc => { if (ACC_MAP[acc]) setCell(ACC_MAP[acc], '✓'); });
+  const ACC_MAP = {'701 Overloupes':'T67','710 Overloupes':'T69','Antifog cloth':'T71','Case Loupe&Headlight':'T73','Custom Magnetic Adapter':'T63'};
+  (data.accessories || []).forEach(acc => { if (ACC_MAP[acc]) setCell(ACC_MAP[acc], '√'); });
 
   XLSX.writeFile(wb, filename, { bookType: 'xlsx', cellStyles: true, bookSST: true, compression: true });
 }
