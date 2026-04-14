@@ -26,15 +26,21 @@ def fill_template(data):
         if val is None or val == '': return
         ws[addr] = val
 
-    # Date — force string so Excel doesn't convert slashes
+    # Date — DD/MM/YYYY format (matches original template convention)
     date_val = data.get('date', '')
     if date_val:
-        ws['D6'] = str(date_val)
+        # Convert YYYY/MM/DD or YYYY-MM-DD to DD/MM/YYYY
+        parts = date_val.replace('-','/').split('/')
+        if len(parts) == 3:
+            if len(parts[0]) == 4:  # YYYY/MM/DD
+                date_val = f"{parts[2]}/{parts[1]}/{parts[0]}"
+            # else already DD/MM/YYYY
+        ws['D6'] = date_val
         ws['D6'].data_type = 's'
 
-    w('D7',  data.get('fname', ''))
-    w('E8',  data.get('lname', ''))
-    w('E9',  data.get('yob', ''))
+    w('D7', data.get('fname', ''))
+    w('D8', data.get('lname', ''))   # Surname goes in D8, not E8
+    w('E9', data.get('yob', ''))
     w('D10', data.get('profession', ''))
     w('D11', data.get('specialty', ''))
     w('D12', data.get('address', ''))
@@ -44,7 +50,7 @@ def fill_template(data):
     w('D16', data.get('email', ''))
 
     # WD selection
-    wd_col   = {'300':6,'350':7,'400':8,'450':9,'500':10,'550':11,'600':12,'700':13}
+    wd_col = {'300':6,'350':7,'400':8,'450':9,'500':10,'550':11,'600':12,'700':13}
     optic_row = {
         'Galilean|2.0x':20,'Galilean|2.5x':21,'Galilean|3.0x':22,'Galilean|3.5x':23,
         'Prismatic|3.5x':24,'Prismatic|4.0x':25,'Prismatic|5.0x':26,
@@ -55,13 +61,15 @@ def fill_template(data):
     if row and col:
         ws.cell(row=row, column=col).value = '✓'
 
-    # Frame selection + color (✓ in the correct color column)
+    # Frame selection: ✓ goes in the cell AFTER the color label
+    # Color positions: each color has a label cell, selection box is label_col + 1
     frame_row = {
         'Look':31,'Cool':32,'Techne 2025':33,'Techne [Old]':34,'Techne RX [Old]':35,
         'Techne ASIAN FITTING [OLD]':36,'Techne RX ASIAN FITTING [OLD]':37,
         'Ash 55-17':38,'Ash 53-17':39,'ITA':40,'ITA - Extended Fit':41,'ONE':42,
     }
-    frame_color_cols = {
+    # color_name → label_col (✓ goes in label_col + 1)
+    frame_color_label_cols = {
         'Look':                          {'Ruby':5,'Emerald':8},
         'Cool':                          {'Ruby':5,'Emerald':8},
         'Techne 2025':                   {'Black/Green':5,'White/Green':8,'Midnight Blue':12,'White/Wisteria':15},
@@ -77,11 +85,11 @@ def fill_template(data):
     }
     fr = frame_row.get(data.get('frame', ''))
     if fr:
-        ws.cell(row=fr, column=4).value = '✓'
         color = (data.get('frame_color', '') or '').strip()
-        for c_name, c_col in frame_color_cols.get(data.get('frame', ''), {}).items():
+        color_map = frame_color_label_cols.get(data.get('frame', ''), {})
+        for c_name, label_col in color_map.items():
             if c_name.strip().lower() == color.lower():
-                ws.cell(row=fr, column=c_col).value = '✓'
+                ws.cell(row=fr, column=label_col + 1).value = '✓'  # ✓ in cell after label
                 break
 
     # Customization
@@ -153,27 +161,24 @@ def fill_template(data):
     wb.save(buf)
     filled_bytes = buf.getvalue()
 
-    # Re-inject ALL images/drawings from original template
-    # CRITICAL: also restore drawing1.xml.rels so EMF logo reference is preserved
-    result_buf = io.BytesIO()
+    # Re-inject images/drawings — openpyxl drops EMF logo and overwrites drawing rels
     RESTORE_FILES = {
         'xl/media/image1.emf',
         'xl/media/image2.png',
         'xl/drawings/vmlDrawing1.vml',
-        'xl/drawings/_rels/drawing1.xml.rels',  # must restore - openpyxl overwrites this
+        'xl/drawings/_rels/drawing1.xml.rels',
     }
+    result_buf = io.BytesIO()
     with zipfile.ZipFile(io.BytesIO(filled_bytes), 'r') as filled_zip:
         with zipfile.ZipFile(TEMPLATE_PATH, 'r') as orig_zip:
             orig_names = set(orig_zip.namelist())
+            filled_names = set(filled_zip.namelist())
             with zipfile.ZipFile(result_buf, 'w', zipfile.ZIP_DEFLATED) as out_zip:
                 for item in filled_zip.namelist():
                     if item in RESTORE_FILES and item in orig_names:
-                        # Restore original version (not openpyxl's rewritten version)
                         out_zip.writestr(item, orig_zip.read(item))
                     else:
                         out_zip.writestr(item, filled_zip.read(item))
-                # Add files that openpyxl dropped entirely
-                filled_names = set(filled_zip.namelist())
                 for item in orig_names:
                     if item not in filled_names and item in RESTORE_FILES:
                         out_zip.writestr(item, orig_zip.read(item))
@@ -214,8 +219,8 @@ def export():
         return '', 204
     data = request.get_json()
     fname = data.get('lname') or data.get('fname') or 'Order'
-    date  = (data.get('date') or '').replace('/','') or 'nodate'
-    base  = f"Univet_Order_{fname}_{date}"
+    date = (data.get('date') or '').replace('/','') or 'nodate'
+    base = f"Univet_Order_{fname}_{date}"
 
     xlsx_bytes = fill_template(data)
 
