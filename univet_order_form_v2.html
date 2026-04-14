@@ -650,6 +650,21 @@
           </div>
         </div>
         <p style="font-size:11px;color:var(--text-light);margin-top:14px"><span style="color:var(--error-red);font-weight:700">*</span> <span data-i18n="reqNote">Required field</span></p>
+
+        <!-- Privacy & Consent (from company template) -->
+        <div style="margin-top:20px;padding:16px 18px;background:#f8f9fa;border:1px solid var(--green-border);border-radius:6px;font-size:12px;color:var(--text-mid);line-height:1.7">
+          <p style="margin-bottom:10px" data-i18n="privacyText">UNIVET is committed to protecting and respecting your privacy, and we'll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. If you consent to us contacting you for this purpose, please tick below to say how you would like us to contact you:</p>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px">
+            <input type="checkbox" id="f_consent_comm" style="accent-color:var(--green-deep);width:16px;height:16px">
+            <span data-i18n="consentComm">I agree to receive other communications from UNIVET.</span>
+          </label>
+          <p style="margin:10px 0" data-i18n="dataStorageText">In order to provide you content, we need to store and process your personal data. If you consent to us storing your personal data for this purpose, please tick the checkbox below.</p>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:8px">
+            <input type="checkbox" id="f_consent_data" style="accent-color:var(--green-deep);width:16px;height:16px">
+            <span data-i18n="consentData">I agree to allow UNIVET to store and process my personal data.*</span>
+          </label>
+          <p style="margin-top:10px;font-size:11px;color:var(--text-light)" data-i18n="unsubscribeText">You may unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy practices, and how we are committed to protecting and respecting your privacy, please review our <a href="https://www.univetloupes.com/en/privacy-policy/" target="_blank" style="color:var(--green-light)">Privacy Policy</a>.</p>
+        </div>
       </div>
     </div>
 
@@ -761,7 +776,8 @@
         </div>
 
         <div class="note-box" data-i18n="wdNote">
-          ⓘ 600/700mm available only for 2.5x & 3.0x Galilean (ITA & ONE frames). Ergo Advanced 700mm: Plano only.
+          ⓘ <strong>i)</strong> 600 and 700mm Working distances are only available to 2.5x and 3.0x Galilean loupes and only for the following frames: ITA and ONE.<br>
+          <strong>ii)</strong> Ergo Advanced with WD=700mm is available only for Neutral/Plano/No correction, both on Carrier Lenses and Barrels.
         </div>
       </div>
     </div>
@@ -833,6 +849,19 @@
           <label class="radio-chip" onclick="selectChip(this,'lens_type','bifocal')"><input type="radio" name="lens_type" value="bifocal"><span data-i18n="bifocal">Bifocal</span></label>
         </div>
 
+        <!-- Lens type notes from company template -->
+        <div id="lens-notes" style="margin-top:10px;font-size:12px;line-height:1.6;color:var(--text-mid)">
+          <div id="note-neutral" style="display:none;padding:8px 12px;background:var(--green-pale);border-radius:5px;margin-bottom:6px">
+            <strong>*</strong> <span data-i18n="noteNeutral">Carrier lenses: NEUTRE; Optics: according to prescription supplied and age, for optimal working distance setting.</span>
+          </div>
+          <div id="note-neutral_cl" style="display:none;padding:8px 12px;background:var(--green-pale);border-radius:5px;margin-bottom:6px">
+            <strong>**</strong> <span data-i18n="noteNeutralCL">Carrier lenses: NEUTRE; Optics: NEUTRAL. Loupes will come 100% without any prescription, as in a demo unit. Make sure the customer wears contact lenses while working.</span>
+          </div>
+          <div id="note-intermediate" style="display:none;padding:8px 12px;background:var(--green-pale);border-radius:5px;margin-bottom:6px">
+            <strong>***</strong> <span data-i18n="noteIntermediate">Provide prescription for intermediate, otherwise the standard intermediate is calculated at 70cm.</span>
+          </div>
+        </div>
+
         <hr class="divider">
 
         <div id="ergo-reading-hint" style="display:none;margin-bottom:12px;padding:10px 14px;background:var(--warn-bg);border:1.5px solid var(--warn-border);border-radius:5px;font-size:13px;color:var(--warn-text)">
@@ -890,7 +919,11 @@
         </table>
 
         <div class="note-box" style="margin-top:14px" data-i18n="rxNote">
-          ⓘ Please attach original prescription or fill above. Values also apply to the optical system. Prescription required even for patients not using glasses in daily life.
+          ⓘ Please attach the original copy of the prescription, or fill the chart above.<br>
+          Please note that these values will be used also for the Optical System, this is why there are more information required than a standard pair of Glasses; also the reason why we need prescription even for people that during normal life is not using Glasses, as they may need anyway a correction in the Optics.
+        </div>
+        <div style="margin-top:8px;padding:8px 12px;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:5px;font-size:12px;color:var(--warn-text)">
+          <strong>*</strong> <span data-i18n="addReadingNote">Addition and/or Reading mandatory for Ergo Advanced.</span>
         </div>
       </div>
     </div>
@@ -934,7 +967,7 @@
         </table>
         <div id="pd-warning" class="pd-warning"></div>
         <div class="note-box" style="margin-top:12px" data-i18n="ipdNote">
-          ⓘ Per eye: at least 2 of 3 measurements must be identical; max spread ≤ 0.5mm. The matching value is used as final Half PD.
+          ⓘ * Per single eye, 2 values out of 3 measurements must be the same, and maximum 0.5mm of difference among the 3 measurements is accepted.
         </div>
       </div>
     </div>
@@ -952,6 +985,9 @@
           <label class="radio-chip" onclick="selectChip(this,'decl','22')"><input type="radio" name="decl" value="22"><span>22°</span></label>
           <label class="radio-chip selected" onclick="selectChip(this,'decl','MAX')"><input type="radio" name="decl" value="MAX" checked><span data-i18n="maxDecl">MAX (default)</span></label>
         </div>
+        <div class="note-box" style="margin-top:8px" data-i18n="declNote">
+          ⓘ *If not filled, MAX (steepest) declination is the default setting. N/A for ERGO.
+        </div>
         <hr class="divider">
         <p class="section-subhead" data-i18n="headlight">Headlight</p>
         <div style="font-size:12px;color:var(--text-light);margin-bottom:8px" data-i18n="accOptional">Optional — click to select, click again to deselect</div>
@@ -959,6 +995,9 @@
           <label class="radio-chip" id="hl_lynx" onclick="toggleSingle(this,'headlight','LYNX')"><span>LYNX</span></label>
           <label class="radio-chip" id="hl_lynxpro" onclick="toggleSingle(this,'headlight','LYNX PRO')"><span>LYNX PRO</span></label>
           <label class="radio-chip" id="hl_eos" onclick="toggleSingle(this,'headlight','EOS Wireless')"><span>EOS Wireless</span></label>
+        </div>
+        <div style="margin-top:8px;padding:8px 12px;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:5px;font-size:12px;color:var(--warn-text)" data-i18n="magneticReminder">
+          <strong>!</strong> If you have chosen one of the options above, don't forget to add the magnetic adapter.
         </div>
         <hr class="divider">
         <p class="section-subhead" data-i18n="accessories">Accessories</p>
@@ -1032,7 +1071,7 @@
     <!-- Legend -->
     <div style="margin-top:16px;padding:14px 16px;background:var(--white);border-radius:var(--radius);border:1px solid var(--green-border);font-size:12px;color:var(--text-mid);">
       <div style="font-weight:600;margin-bottom:8px;color:var(--text-dark)" data-i18n="legend">Legend</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge ok">√ OK</span> <span data-i18n="legendOk">Within feasibility range</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge ok">✓ OK</span> <span data-i18n="legendOk">Within feasibility range</span></div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="badge warn">✗ Out</span> <span data-i18n="legendOut">Outside feasibility range</span></div>
       <div style="display:flex;align-items:center;gap:8px"><span class="badge na">—</span> <span data-i18n="legendNa">Not yet entered</span></div>
     </div>
@@ -1076,7 +1115,7 @@ const LANG = {
     reqNote: 'Required field',
     ergoReadingHint: 'Reading SPH is mandatory for both eyes when using Ergo Advanced.',
     feasWaiting: 'Waiting for input', feasWaitingSub: 'Fill in optic selection and prescription',
-    feasOK: 'Feasible √', feasOKSub: 'Prescription within range for selected optic',
+    feasOK: 'Feasible ✓', feasOKSub: 'Prescription within range for selected optic',
     feasFail: 'Not Feasible ✗', feasFailSub: 'Prescription outside range — contact Univet CS',
     feasPartial: 'Partially Feasible', feasPartialSub: 'One eye outside range',
     feasNoRx: 'No RX required', feasNoRxSub: 'Neutral or contact lens option selected',
@@ -1088,6 +1127,17 @@ const LANG = {
     legendOut: 'Outside feasibility range', legendNa: 'Not yet entered',
     pdOK: 'PD within frame limits', pdWarn: 'PD outside frame limits!',
     pdNoFrame: 'Select frame to check PD',
+    privacyText: "UNIVET is committed to protecting and respecting your privacy, and we'll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. If you consent to us contacting you for this purpose, please tick below to say how you would like us to contact you:",
+    consentComm: 'I agree to receive other communications from UNIVET.',
+    dataStorageText: 'In order to provide you content, we need to store and process your personal data. If you consent to us storing your personal data for this purpose, please tick the checkbox below.',
+    consentData: 'I agree to allow UNIVET to store and process my personal data.*',
+    unsubscribeText: 'You may unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy practices, and how we are committed to protecting and respecting your privacy, please review our Privacy Policy.',
+    noteNeutral: 'Carrier lenses: NEUTRE; Optics: according to prescription supplied and age, for optimal working distance setting.',
+    noteNeutralCL: 'Carrier lenses: NEUTRE; Optics: NEUTRAL. Loupes will come 100% without any prescription, as in a demo unit. Make sure the customer wears contact lenses while working.',
+    noteIntermediate: 'Provide prescription for intermediate, otherwise the standard intermediate is calculated at 70cm.',
+    addReadingNote: 'Addition and/or Reading mandatory for Ergo Advanced.',
+    declNote: '*If not filled, MAX (steepest) declination is the default setting. N/A for ERGO.',
+    magneticReminder: "If you have chosen one of the options above, don't forget to add the magnetic adapter.",
   },
   zh: {
     title: 'Univet 訂單表格', subtitle: '2026 — 處方可行性即時驗證',
@@ -1122,7 +1172,7 @@ const LANG = {
     ergoReadingHint: '選擇 Ergo Advanced 時，兩眼的近用度數（Reading SPH）為必填。',
     feasCheck: '處方可行性', feasSub: '即時驗證',
     feasWaiting: '等待輸入', feasWaitingSub: '請選擇光學並填入處方',
-    feasOK: '可以製作 √', feasOKSub: '處方在所選光學的可行範圍內',
+    feasOK: '可以製作 ✓', feasOKSub: '處方在所選光學的可行範圍內',
     feasFail: '無法製作 ✗', feasFailSub: '處方超出範圍——請聯絡 Univet 客服',
     feasPartial: '部分可行', feasPartialSub: '其中一眼超出範圍',
     feasNoRx: '無需處方', feasNoRxSub: '已選擇無度數或隱形眼鏡模式',
@@ -1134,6 +1184,17 @@ const LANG = {
     legendOut: '超出可行範圍', legendNa: '尚未填入',
     pdOK: 'PD 在鏡架範圍內', pdWarn: 'PD 超出鏡架限制！',
     pdNoFrame: '請先選擇鏡架以檢查 PD',
+    privacyText: 'UNIVET 致力於保護和尊重您的隱私，我們僅會使用您的個人資訊來管理您的帳戶及提供您所要求的產品和服務。我們不時會就我們的產品、服務及其他您可能感興趣的內容與您聯繫。如果您同意我們就此目的與您聯繫，請在下方勾選您希望的聯繫方式：',
+    consentComm: '我同意接收 UNIVET 的其他通訊。',
+    dataStorageText: '為了向您提供內容，我們需要儲存和處理您的個人資料。如果您同意我們為此目的儲存您的個人資料，請勾選下方的核取方塊。',
+    consentData: '我同意允許 UNIVET 儲存和處理我的個人資料。*',
+    unsubscribeText: '您可隨時取消訂閱這些通訊。如需了解更多退訂方式、我們的隱私慣例及我們如何保護您的隱私，請查閱我們的隱私政策。',
+    noteNeutral: '載體鏡片：NEUTRE（無度數）；光學系統：依據所提供的處方和年齡，以達到最佳工作距離設定。',
+    noteNeutralCL: '載體鏡片：NEUTRE；光學系統：NEUTRAL。放大鏡將 100% 不含任何處方，如同展示機。請確保客戶在工作時佩戴隱形眼鏡。',
+    noteIntermediate: '請提供中距離處方，否則標準中距離將以 70cm 計算。',
+    addReadingNote: 'Ergo Advanced 必須填寫 Addition 和/或 Reading 度數。',
+    declNote: '*若未填寫，預設使用 MAX（最大傾斜角）。不適用於 ERGO。',
+    magneticReminder: '如果您選擇了以上頭燈選項，請別忘了加購磁吸轉接器。',
   }
 };
 let currentLang = 'en';
@@ -1252,7 +1313,7 @@ function getTableKey(type, mag, wd) {
   
   if (type === 'Ergo') {
     if (magClean === '3.5') {
-      // Available: 400,450,500,550,600mm
+      // Available: 350,400,450,500,550,600mm
       const wds = [350, 400, 450, 500, 550, 600];
       const nearest = wds.reduce((a, b) => Math.abs(b - wdNum) < Math.abs(a - wdNum) ? b : a);
       // Ergo_3.5x_350 may not have its own table — fall back to 400 if missing
@@ -1549,7 +1610,14 @@ function selectChip(el, name, val) {
   });
   el.classList.add('selected');
   updateFeasibility();
-  if (name === 'lens_type') updateErgoReadingHint();
+  if (name === 'lens_type') {
+    updateErgoReadingHint();
+    // Show/hide lens type notes
+    ['neutral','neutral_cl','intermediate'].forEach(t => {
+      const el = document.getElementById('note-' + t);
+      if (el) el.style.display = (val === t) ? 'block' : 'none';
+    });
+  }
 }
 
 function toggleSingle(el, group, val) {
@@ -1613,7 +1681,7 @@ function updateFeasibility() {
   // Neutral cases
   if (lensVal === 'neutral' || lensVal === 'neutral_cl') {
     mainEl.className = 'feas-status ok';
-    mainEl.innerHTML = `<div class="feas-icon">√</div><div><div class="feas-label">${t('feasNoRx')}</div><div class="feas-detail">${t('feasNoRxSub')}</div></div>`;
+    mainEl.innerHTML = `<div class="feas-icon">✓</div><div><div class="feas-label">${t('feasNoRx')}</div><div class="feas-detail">${t('feasNoRxSub')}</div></div>`;
     odResEl.innerHTML = `<span class="badge na">N/A</span>`;
     osResEl.innerHTML = `<span class="badge na">N/A</span>`;
     return;
@@ -1641,8 +1709,8 @@ function updateFeasibility() {
   const odOk = (odSph === null) ? null : checkFeasibility(type, mag, wd, odSph, odCyl || 0, frame, lensVal2);
   const osOk = (osSph === null) ? null : checkFeasibility(type, mag, wd, osSph, osCyl || 0, frame, lensVal2);
 
-  odResEl.innerHTML = odOk === null ? `<span class="badge na">—</span>` : odOk ? `<span class="badge ok">√ OK</span>` : `<span class="badge warn">✗ Out</span>`;
-  osResEl.innerHTML = osOk === null ? `<span class="badge na">—</span>` : osOk ? `<span class="badge ok">√ OK</span>` : `<span class="badge warn">✗ Out</span>`;
+  odResEl.innerHTML = odOk === null ? `<span class="badge na">—</span>` : odOk ? `<span class="badge ok">✓ OK</span>` : `<span class="badge warn">✗ Out</span>`;
+  osResEl.innerHTML = osOk === null ? `<span class="badge na">—</span>` : osOk ? `<span class="badge ok">✓ OK</span>` : `<span class="badge warn">✗ Out</span>`;
 
   const bothOk = (odOk !== false) && (osOk !== false) && (odOk !== null || osOk !== null);
   const anyFail = odOk === false || osOk === false;
@@ -1653,7 +1721,7 @@ function updateFeasibility() {
     mainEl.innerHTML = `<div class="feas-icon">✗</div><div><div class="feas-label">${t(bothFail ? 'feasFail' : 'feasPartial')}</div><div class="feas-detail">${t(bothFail ? 'feasFailSub' : 'feasPartialSub')}</div></div>`;
   } else {
     mainEl.className = 'feas-status ok';
-    mainEl.innerHTML = `<div class="feas-icon">√</div><div><div class="feas-label">${t('feasOK')}</div><div class="feas-detail">${t('feasOKSub')}</div></div>`;
+    mainEl.innerHTML = `<div class="feas-icon">✓</div><div><div class="feas-label">${t('feasOK')}</div><div class="feas-detail">${t('feasOKSub')}</div></div>`;
   }
 }
 
@@ -1786,9 +1854,9 @@ function calcIPD() {
     pdWarnEl.className = 'pd-warning warn show';
     pdWarnEl.innerHTML = allErrors.map(e => `⚠ ${e}`).join('<br>');
   } else if (allValid && (rResult || lResult)) {
-    pdFeasEl.innerHTML = `<span class="badge ok">√ OK</span>`;
+    pdFeasEl.innerHTML = `<span class="badge ok">✓ OK</span>`;
     pdWarnEl.className = 'pd-warning ok show';
-    pdWarnEl.textContent = `√ ${t('pdOK')} (${limits[0]}–${limits[1]} mm/eye)`;
+    pdWarnEl.textContent = `✓ ${t('pdOK')} (${limits[0]}–${limits[1]} mm/eye)`;
   } else {
     pdFeasEl.innerHTML = `<span class="badge na">—</span>`;
     pdWarnEl.className = 'pd-warning';
@@ -2059,9 +2127,7 @@ async function exportXLSX() {
   const filename = `Univet_Order_${fname}_${date}.xlsx`;
 
   // ── API URL ──
-  // 本機測試：python app.py 後自動用 localhost
-  // 部署後：把下面改成你的 Render URL，例如：
-  // // 自動偵測：本機開發用 localhost，部署後用當前 origin 或 Render URL
+  // 自動偵測：本機開發用 localhost，部署後用當前 origin 或 Render URL
   const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   const API_URL = isLocal
     ? 'http://localhost:7788'
@@ -2164,12 +2230,14 @@ function exportFallbackSheetJS(data, filename) {
   };
   const fRow = FRAME_ROWS[data.frame];
   if (fRow) {
+    // Find the color column and put ✓ one column to the right
     const colorMap = FRAME_COLOR_COLS[data.frame] || {};
     const colorCol = colorMap[data.frame_color];
     if (colorCol) {
       const nextCol = String.fromCharCode(colorCol.charCodeAt(0) + 1);
       setCell(`${nextCol}${fRow}`, '√');
     } else {
+      // Fallback: write color name at first available spot
       setCell(`D${fRow}`, '√');
       setCell(`E${fRow}`, data.frame_color);
     }
