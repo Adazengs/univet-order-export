@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
-# Install LibreOffice
+# Install only LibreOffice Calc (not the full suite — much faster & smaller)
 RUN apt-get update && apt-get install -y \
-    libreoffice \
+    libreoffice-calc \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
@@ -13,4 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 10000
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
+# Increase timeout to 120s for PDF conversion; preload app for faster cold starts
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--timeout", "120", "--preload", "app:app"]

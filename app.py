@@ -473,6 +473,11 @@ def pack_zip(xlsx_bytes, pdf_bytes, xlsx_name, pdf_name):
 
 # ── Flask routes ─────────────────────────────────────────────────────
 
+@app.route('/')
+def index():
+    return 'Univet Order Export API is running.'
+
+
 @app.route('/ping')
 def ping():
     return 'ok'
