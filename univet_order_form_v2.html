@@ -2144,20 +2144,17 @@ async function exportXLSX() {
       signal: AbortSignal.timeout(35000),
     });
     if (resp.ok) {
-      const zipBlob = await resp.blob();
-      // Unzip and trigger separate downloads for xlsx and pdf
-      const zipAB = await zipBlob.arrayBuffer();
-      const zip = new JSZip();
-      const contents = await zip.loadAsync(zipAB);
-      for (const [name, file] of Object.entries(contents.files)) {
-        if (file.dir) continue;
-        const fileBlob = await file.async('blob');
-        const url = URL.createObjectURL(fileBlob);
-        const a = document.createElement('a');
-        a.href = url; a.download = name; a.click();
-        URL.revokeObjectURL(url);
-        await new Promise(r => setTimeout(r, 300)); // small gap between downloads
-      }
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(
+        new Blob([blob], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+      );
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
       return;
     }
   } catch(e) {

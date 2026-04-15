@@ -9,7 +9,7 @@ byte-for-byte identical to the company template except for filled cells.
 
 import io, os, re, zipfile, datetime, json
 import xml.etree.ElementTree as ET
-from flask import Flask, request, send_file
+from flask import Flask, request, Response
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -447,11 +447,16 @@ def export():
     date_str = (data.get('date') or '').replace('/', '').replace('-', '') or 'nodate'
     filename = f"Univet_Order_{fname}_{date_str}.xlsx"
 
-    return send_file(
-        buf,
+    xlsx_bytes = buf.read()
+    return Response(
+        xlsx_bytes,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        as_attachment=True,
-        download_name=filename
+        headers={
+            'Content-Disposition': f'attachment; filename="{filename}"',
+            'Content-Length': str(len(xlsx_bytes)),
+            'X-Content-Type-Options': 'nosniff',
+            'Cache-Control': 'no-transform, no-store',
+        }
     )
 
 
