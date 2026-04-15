@@ -1,51 +1,121 @@
 #!/usr/bin/env python3
-"""Univet Order Form Export API — Fixed version"""
+"""
+Univet Order Form Export API — v3 (XML-direct)
 
-import json, io, os, zipfile, datetime
+Instead of openpyxl (which destroys fonts, borders, images, etc.),
+this version manipulates the xlsx XML directly so the output is
+byte-for-byte identical to the company template except for filled cells.
+"""
+
+import io, os, re, zipfile, datetime, json
+import xml.etree.ElementTree as ET
 from flask import Flask, request, send_file
 from flask_cors import CORS
-from openpyxl import load_workbook
 
 app = Flask(__name__)
 CORS(app)
 
-TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             '2026_ORDER_FORM__eng__rev0.xlsx')
+# ── Locate template ──────────────────────────────────────────────────
+_dir = os.path.dirname(os.path.abspath(__file__))
+# Try both possible filenames
+for _candidate in ['2026_ORDER_FORM__eng__rev0.xlsx',
+                   '2026 ORDER FORM (eng) rev0.xlsx']:
+    _p = os.path.join(_dir, _candidate)
+    if os.path.isfile(_p):
+        TEMPLATE_PATH = _p
+        break
+else:
+    raise FileNotFoundError("Template xlsx not found in " + _dir)
 
-def fill_template(data):
-    wb = load_workbook(TEMPLATE_PATH)
-    ws = wb.active
+# ── Spreadsheet XML namespace ────────────────────────────────────────
+NS  = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+NSP = '{' + NS + '}'
 
-    def w(addr, val):
+# Register namespace so ET.tostring doesn't add ns0: prefixes everywhere
+ET.register_namespace('', NS)
+ET.register_namespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
+ET.register_namespace('mc', 'http://schemas.openxmlformats.org/markup-compatibility/2006')
+ET.register_namespace('x14ac', 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac')
+ET.register_namespace('xr', 'http://schemas.microsoft.com/office/spreadsheetml/2014/revision')
+ET.register_namespace('xr6', 'http://schemas.microsoft.com/office/spreadsheetml/2014/revision6')
+ET.register_namespace('xr10', 'http://schemas.microsoft.com/office/spreadsheetml/2014/revision10')
+
+
+# ── Helpers ──────────────────────────────────────────────────────────
+
+def col_letter(n):
+    """1-based column number → letter(s): 1→A, 4→D, 20→T."""
+    s = ''
+    while n > 0:
+        n, r = divmod(n - 1, 26)
+        s = chr(65 + r) + s
+    return s
+
+
+def cell_ref(row, col):
+    """(row, col) 1-based → 'D6'."""
+    return f'{col_letter(col)}{row}'
+
+
+def ref_to_row(ref):
+    """'D6' → 6."""
+    return int(re.sub(r'[A-Z]+', '', ref))
+
+
+def ref_to_col_num(ref):
+    """'D6' → 4."""
+    letters = re.sub(r'[0-9]+', '', ref)
+    n = 0
+    for ch in letters:
+        n = n * 26 + (ord(ch) - 64)
+    return n
+
+
+# ── Core: build cell-update map from form data ──────────────────────
+
+def build_cell_map(data):
+    """
+    Return dict  { 'D6': value, ... }
+    where value is:
+      str        → written as inlineStr
+      int/float  → written as number
+      ('formula', '=(2026-E9)')  → written as formula
+    """
+    cells = {}
+
+    def put(addr, val):
         if val is None or val == '':
             return
-        ws[addr] = val
+        cells[addr] = val
 
-    # Customer info
-    w('D6',  data.get('date', ''))
-    w('D7',  data.get('fname', ''))
-    w('D8',  data.get('lname', ''))        # Fixed: was E8
+    # ── Customer info ────────────────────────────────────────────────
+    put('D6',  data.get('date', ''))
+    put('D7',  data.get('fname', ''))
+    put('D8',  data.get('lname', ''))
+
     yob = data.get('yob', '')
     if yob:
-        w('E9', yob)
-        # Fix age formula to use current year
+        try:
+            put('E9', int(yob))
+        except (ValueError, TypeError):
+            put('E9', yob)
         current_year = datetime.date.today().year
-        ws['G9'] = f'=({current_year}-E9)'
+        cells['G9'] = ('formula', f'({current_year}-E9)')
 
-    w('D10', data.get('profession', ''))
-    w('D11', data.get('specialty', ''))
-    w('D12', data.get('address', ''))
-    w('D13', data.get('town', ''))
-    w('D14', data.get('country', ''))
-    w('D15', data.get('tel', ''))
-    w('D16', data.get('email', ''))
+    put('D10', data.get('profession', ''))
+    put('D11', data.get('specialty', ''))
+    put('D12', data.get('address', ''))
+    put('D13', data.get('town', ''))
+    put('D14', data.get('country', ''))
+    put('D15', data.get('tel', ''))
+    put('D16', data.get('email', ''))
 
-    # Agent / Sales Representative
+    # ── Agent / Sales Representative ─────────────────────────────────
     agent = data.get('agent', '')
     if agent:
-        w('E87', agent)
+        put('E87', agent)
 
-    # Optic + WD checkmark
+    # ── Optic + WD checkmark ─────────────────────────────────────────
     wd_col = {'300': 6, '350': 7, '400': 8, '450': 9,
               '500': 10, '550': 11, '600': 12, '700': 13}
     optic_row = {
@@ -59,9 +129,9 @@ def fill_template(data):
     row = optic_row.get(optic_key)
     col = wd_col.get(wd_key)
     if row and col:
-        ws.cell(row=row, column=col).value = '\u221A'   # Fixed: √ not ✓
+        cells[cell_ref(row, col)] = '\u221A'
 
-    # Frame checkmark + color checkmark
+    # ── Frame + color checkmark ──────────────────────────────────────
     frame_row = {
         'Look': 31, 'Cool': 32, 'Techne 2025': 33, 'Techne [Old]': 34,
         'Techne RX [Old]': 35,
@@ -69,8 +139,6 @@ def fill_template(data):
         'Ash 55-17': 38, 'Ash 53-17': 39,
         'ITA': 40, 'ITA - Extended Fit': 41, 'ONE': 42,
     }
-
-    # Color name -> column of the color LABEL; checkmark goes 1 column RIGHT
     frame_color_cols = {
         'Look':       {'Ruby': 5, 'Emerald': 8},
         'Cool':       {'Ruby': 5, 'Emerald': 8},
@@ -100,28 +168,27 @@ def fill_template(data):
         matched = False
         for c_name, c_col in color_map.items():
             if c_name.strip().lower() == color.lower():
-                # Fixed: checkmark goes 1 column RIGHT of the color label
-                ws.cell(row=fr, column=c_col + 1).value = '\u221A'
+                cells[cell_ref(fr, c_col + 1)] = '\u221A'
                 matched = True
                 break
-        if not matched:
-            # Fallback: mark frame selected + write color name
-            ws.cell(row=fr, column=4).value = '\u221A'
-            ws.cell(row=fr, column=5).value = color
+        if not matched and color:
+            cells[cell_ref(fr, 4)] = '\u221A'
+            cells[cell_ref(fr, 5)] = color
 
-    # Customization
-    w('E46', data.get('custom_case', ''))
-    w('E47', data.get('custom_frame', ''))
-    w('N44', data.get('note', ''))
+    # ── Customization ────────────────────────────────────────────────
+    put('E46', data.get('custom_case', ''))
+    put('E47', data.get('custom_frame', ''))
+    put('N44', data.get('note', ''))
 
-    # Lens type checkmark
+    # ── Lens type checkmark ──────────────────────────────────────────
     lens_row = {'neutral': 53, 'neutral_cl': 55, 'distance': 57,
                 'intermediate': 59, 'reading': 61, 'bifocal': 63}
     lr = lens_row.get(data.get('lens_type', ''))
     if lr:
-        ws.cell(row=lr, column=9).value = '\u221A'   # Fixed: √ not ✓
+        cells[cell_ref(lr, 9)] = '\u221A'
 
-    # RX values — OD: F(sph), G(cyl), H(axis)  OS: J(sph), K(cyl), M(axis)
+    # ── RX values ────────────────────────────────────────────────────
+    # OD: F(sph), G(cyl), H(axis)   OS: J(sph), K(cyl), M(axis)
     # Row 69=Distance, 70=Interm, 71=Reading, 72=Add
     rx = data.get('rx', {})
     for dist, rn in [('dist', 69), ('int', 70), ('read', 71)]:
@@ -133,7 +200,7 @@ def fill_template(data):
                         val = float(val)
                     except (ValueError, TypeError):
                         pass
-                    ws.cell(row=rn, column=cn).value = val
+                    cells[cell_ref(rn, cn)] = val
 
     for eye, cn in [('od', 6), ('os', 10)]:
         val = rx.get(f'{eye}_add')
@@ -142,15 +209,15 @@ def fill_template(data):
                 val = float(val)
             except (ValueError, TypeError):
                 pass
-            ws.cell(row=72, column=cn).value = val
+            cells[cell_ref(72, cn)] = val
 
-    # Declination — D=18°, G=22°, J=MAX
+    # ── Declination ──────────────────────────────────────────────────
     decl_col = {'18': 4, '22': 7, 'MAX': 10}
     dc = decl_col.get(data.get('decl', 'MAX'))
     if dc:
-        ws.cell(row=75, column=dc).value = '\u221A'   # Fixed: √ not ✓
+        cells[cell_ref(75, dc)] = '\u221A'
 
-    # IPD — Right: F80,G80,H80  Left: I80,J80,L80
+    # ── IPD ──────────────────────────────────────────────────────────
     ipd = data.get('ipd', {})
     for key, addr in [('r1', 'F80'), ('r2', 'G80'), ('r3', 'H80'),
                       ('l1', 'I80'), ('l2', 'J80'), ('l3', 'L80')]:
@@ -160,55 +227,208 @@ def fill_template(data):
                 val = float(val)
             except (ValueError, TypeError):
                 pass
-            ws[addr] = val
+            cells[addr] = val
 
-    # Headlight — col T (column 20)
+    # ── Headlight ────────────────────────────────────────────────────
     hl_row = {'LYNX': 53, 'LYNX PRO': 55, 'EOS Wireless': 57}
     hr = hl_row.get(data.get('headlight', ''))
     if hr:
-        ws.cell(row=hr, column=20).value = '\u221A'   # Fixed: √ not ✓
+        cells[cell_ref(hr, 20)] = '\u221A'
 
-    # Accessories — col T (column 20)
+    # ── Accessories ──────────────────────────────────────────────────
     acc_map = {
-        '701 Overloupes':         (67, 20),
-        '710 Overloupes':         (69, 20),
-        'Antifog cloth':          (71, 20),
-        'Case Loupe&Headlight':   (73, 20),
+        '701 Overloupes':          (67, 20),
+        '710 Overloupes':          (69, 20),
+        'Antifog cloth':           (71, 20),
+        'Case Loupe&Headlight':    (73, 20),
         'Custom Magnetic Adapter': (63, 20),
     }
     for acc in data.get('accessories', []):
         pos = acc_map.get(acc)
         if pos:
-            ws.cell(row=pos[0], column=pos[1]).value = '\u221A'  # Fixed: √ not ✓
+            cells[cell_ref(pos[0], pos[1])] = '\u221A'
 
-    # ── Save & preserve images ──
-    buf = io.BytesIO()
-    wb.save(buf)
-    filled_bytes = buf.getvalue()
+    return cells
 
-    # Re-inject images/drawings from original template (openpyxl sometimes drops them)
+
+# ── XML-level cell injection ─────────────────────────────────────────
+
+def set_cell_value(c_elem, value):
+    """
+    Modify an existing <c> element in-place to hold `value`.
+    Preserves the 's' (style) attribute.
+    """
+    # Remove existing children (<v>, <f>, <is>)
+    for child in list(c_elem):
+        c_elem.remove(child)
+
+    if isinstance(value, tuple) and value[0] == 'formula':
+        # Formula
+        c_elem.attrib.pop('t', None)
+        f_el = ET.SubElement(c_elem, f'{NSP}f')
+        f_el.text = value[1]
+    elif isinstance(value, (int, float)):
+        # Number
+        c_elem.attrib.pop('t', None)
+        v_el = ET.SubElement(c_elem, f'{NSP}v')
+        # Write integers without decimal point
+        if isinstance(value, float) and value == int(value):
+            v_el.text = str(int(value))
+        else:
+            v_el.text = str(value)
+    else:
+        # String → inline string (preserves style, no sharedStrings modification)
+        c_elem.set('t', 'inlineStr')
+        is_el = ET.SubElement(c_elem, f'{NSP}is')
+        t_el  = ET.SubElement(is_el, f'{NSP}t')
+        t_el.text = str(value)
+
+
+def make_cell_elem(ref, value, style_idx=None):
+    """Create a new <c> element for a cell that doesn't exist in the template."""
+    c = ET.Element(f'{NSP}c')
+    c.set('r', ref)
+    if style_idx is not None:
+        c.set('s', str(style_idx))
+    set_cell_value(c, value)
+    return c
+
+
+def get_or_create_row(sheet_data, row_num):
+    """Find or create a <row> element for the given row number."""
+    for row_el in sheet_data.findall(f'{NSP}row'):
+        if int(row_el.get('r')) == row_num:
+            return row_el
+
+    # Create new row in the right position
+    new_row = ET.Element(f'{NSP}row')
+    new_row.set('r', str(row_num))
+    # Insert in order
+    inserted = False
+    for i, row_el in enumerate(sheet_data.findall(f'{NSP}row')):
+        if int(row_el.get('r')) > row_num:
+            # Insert before this row
+            rows = list(sheet_data)
+            idx = list(sheet_data).index(row_el)
+            sheet_data.insert(idx, new_row)
+            inserted = True
+            break
+    if not inserted:
+        sheet_data.append(new_row)
+    return new_row
+
+
+def insert_cell_in_row(row_el, c_elem):
+    """Insert a <c> element into a <row> in correct column order."""
+    new_col = ref_to_col_num(c_elem.get('r'))
+    for i, existing in enumerate(row_el.findall(f'{NSP}c')):
+        existing_col = ref_to_col_num(existing.get('r'))
+        if existing_col > new_col:
+            # Insert before this cell
+            children = list(row_el)
+            idx = children.index(existing)
+            row_el.insert(idx, c_elem)
+            return
+    # Append at end
+    row_el.append(c_elem)
+
+
+def find_style_for_cell(sheet_data, row_num, col_num):
+    """Try to find a style index from a nearby cell in the same row."""
+    for row_el in sheet_data.findall(f'{NSP}row'):
+        if int(row_el.get('r')) == row_num:
+            for c_el in row_el.findall(f'{NSP}c'):
+                s = c_el.get('s')
+                if s:
+                    return s
+    return None
+
+
+def fill_template(data):
+    """
+    Fill the template by directly editing the sheet XML inside the zip.
+    This preserves ALL formatting, images, drawings, print settings, etc.
+    """
+    cell_map = build_cell_map(data)
+    if not cell_map:
+        # Nothing to fill — return template as-is
+        with open(TEMPLATE_PATH, 'rb') as f:
+            return io.BytesIO(f.read())
+
+    # Read template zip into memory
+    with open(TEMPLATE_PATH, 'rb') as f:
+        template_bytes = f.read()
+
+    # Parse sheet1.xml
+    with zipfile.ZipFile(io.BytesIO(template_bytes), 'r') as zin:
+        sheet_xml_bytes = zin.read('xl/worksheets/sheet1.xml')
+
+    # Parse with ElementTree
+    tree = ET.ElementTree(ET.fromstring(sheet_xml_bytes))
+    root = tree.getroot()
+
+    # Find <sheetData>
+    sheet_data = root.find(f'{NSP}sheetData')
+
+    # Group cells by row
+    cells_by_row = {}
+    for ref, val in cell_map.items():
+        rn = ref_to_row(ref)
+        cells_by_row.setdefault(rn, []).append((ref, val))
+
+    # Process each cell
+    for row_num, cell_list in cells_by_row.items():
+        row_el = None
+        # Find existing row
+        for r in sheet_data.findall(f'{NSP}row'):
+            if int(r.get('r')) == row_num:
+                row_el = r
+                break
+
+        for ref, val in cell_list:
+            if row_el is not None:
+                # Look for existing cell
+                found = False
+                for c_el in row_el.findall(f'{NSP}c'):
+                    if c_el.get('r') == ref:
+                        # Cell exists — update value, preserve style
+                        set_cell_value(c_el, val)
+                        found = True
+                        break
+                if not found:
+                    # Cell doesn't exist in this row — create and insert
+                    style = find_style_for_cell(sheet_data, row_num,
+                                                 ref_to_col_num(ref))
+                    c_new = make_cell_elem(ref, val, style)
+                    insert_cell_in_row(row_el, c_new)
+            else:
+                # Row doesn't exist — create row and cell
+                row_el = get_or_create_row(sheet_data, row_num)
+                style = find_style_for_cell(sheet_data, row_num,
+                                             ref_to_col_num(ref))
+                c_new = make_cell_elem(ref, val, style)
+                row_el.append(c_new)
+
+    # Serialize modified XML
+    new_sheet_xml = ET.tostring(root, encoding='UTF-8', xml_declaration=True)
+
+    # Rebuild zip: copy everything from template, replace sheet1.xml
     result_buf = io.BytesIO()
-    with zipfile.ZipFile(io.BytesIO(filled_bytes), 'r') as filled_zip, \
-         zipfile.ZipFile(TEMPLATE_PATH, 'r') as orig_zip, \
-         zipfile.ZipFile(result_buf, 'w', zipfile.ZIP_DEFLATED) as out_zip:
+    with zipfile.ZipFile(io.BytesIO(template_bytes), 'r') as zin, \
+         zipfile.ZipFile(result_buf, 'w', zipfile.ZIP_DEFLATED) as zout:
 
-        filled_names = set(filled_zip.namelist())
-
-        # Copy all files from filled version
-        for name in filled_zip.namelist():
-            out_zip.writestr(name, filled_zip.read(name))
-
-        # Re-inject any media/drawing files that openpyxl dropped
-        for name in orig_zip.namelist():
-            if name not in filled_names and ('media' in name or 'drawing' in name):
-                out_zip.writestr(name, orig_zip.read(name))
-            # Also restore drawing rels if they exist in original but not in filled
-            if name not in filled_names and 'drawings' in name:
-                out_zip.writestr(name, orig_zip.read(name))
+        for item in zin.infolist():
+            if item.filename == 'xl/worksheets/sheet1.xml':
+                zout.writestr(item, new_sheet_xml)
+            else:
+                # Copy byte-for-byte from original
+                zout.writestr(item, zin.read(item.filename))
 
     result_buf.seek(0)
     return result_buf
 
+
+# ── Flask routes ─────────────────────────────────────────────────────
 
 @app.route('/ping')
 def ping():
@@ -224,8 +444,8 @@ def export():
     buf  = fill_template(data)
 
     fname    = data.get('lname') or data.get('fname') or 'Order'
-    date     = (data.get('date') or '').replace('/', '') or 'nodate'
-    filename = f"Univet_Order_{fname}_{date}.xlsx"
+    date_str = (data.get('date') or '').replace('/', '').replace('-', '') or 'nodate'
+    filename = f"Univet_Order_{fname}_{date_str}.xlsx"
 
     return send_file(
         buf,
