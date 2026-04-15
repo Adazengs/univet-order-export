@@ -110,6 +110,12 @@ def build_cell_map(data):
     put('D15', data.get('tel', ''))
     put('D16', data.get('email', ''))
 
+    # ── Consent checkboxes ───────────────────────────────────────────
+    if data.get('consent_comm'):
+        cells['O10'] = '\u221A'
+    if data.get('consent_data'):
+        cells['O13'] = '\u221A'
+
     # ── Agent / Sales Representative ─────────────────────────────────
     agent = data.get('agent', '')
     if agent:

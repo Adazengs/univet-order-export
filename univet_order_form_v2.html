@@ -2109,6 +2109,8 @@ function collectFormData() {
     },
     headlight: selectedHeadlight || '',
     accessories: [...selectedAccs],
+    consent_comm: document.getElementById('f_consent_comm')?.checked || false,
+    consent_data: document.getElementById('f_consent_data')?.checked || false,
   };
 }
 
