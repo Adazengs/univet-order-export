@@ -1063,7 +1063,7 @@
 
         <button class="export-btn" onclick="exportXLSX()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          <span data-i18n="exportBtn">Export Order (.xlsx)</span>
+          <span data-i18n="exportBtn">Export Order (.xlsx + .pdf)</span>
         </button>
       </div>
     </div>
@@ -1122,7 +1122,7 @@ const LANG = {
     opticSel: 'Optic Selected', wdSel: 'Working Distance',
     odRx: 'OD (Right) SPH/CYL', osRx: 'OS (Left) SPH/CYL',
     odResult: 'OD Result', osResult: 'OS Result', pdCheck: 'PD Check',
-    exportBtn: 'Export Order (.xlsx)',
+    exportBtn: 'Export Order (.xlsx + .pdf)',
     legend: 'Legend', legendOk: 'Within feasibility range',
     legendOut: 'Outside feasibility range', legendNa: 'Not yet entered',
     pdOK: 'PD within frame limits', pdWarn: 'PD outside frame limits!',
@@ -1179,7 +1179,7 @@ const LANG = {
     opticSel: '已選光學', wdSel: '工作距離',
     odRx: '右眼 SPH/CYL', osRx: '左眼 SPH/CYL',
     odResult: '右眼結果', osResult: '左眼結果', pdCheck: 'PD 檢查',
-    exportBtn: '匯出訂單 (.xlsx)',
+    exportBtn: '匯出訂單 (.xlsx + .pdf)',
     legend: '圖例', legendOk: '在可行範圍內',
     legendOut: '超出可行範圍', legendNa: '尚未填入',
     pdOK: 'PD 在鏡架範圍內', pdWarn: 'PD 超出鏡架限制！',
@@ -2143,20 +2143,40 @@ async function exportXLSX() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-      signal: AbortSignal.timeout(35000),
+      signal: AbortSignal.timeout(60000),
     });
     if (resp.ok) {
+      const contentType = resp.headers.get('Content-Type') || '';
       const blob = await resp.blob();
-      const url = URL.createObjectURL(
-        new Blob([blob], {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        })
-      );
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
+
+      if (contentType.includes('application/zip')) {
+        // Server returned zip with xlsx + pdf — unpack and download each
+        const zipAB = await blob.arrayBuffer();
+        const zip = new JSZip();
+        const contents = await zip.loadAsync(zipAB);
+        for (const [name, file] of Object.entries(contents.files)) {
+          if (file.dir) continue;
+          const fileBlob = await file.async('blob');
+          const mime = name.endsWith('.pdf')
+            ? 'application/pdf'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          const url = URL.createObjectURL(new Blob([fileBlob], { type: mime }));
+          const a = document.createElement('a');
+          a.href = url; a.download = name; a.click();
+          URL.revokeObjectURL(url);
+          await new Promise(r => setTimeout(r, 400));
+        }
+      } else {
+        // Server returned xlsx only (PDF conversion unavailable)
+        const url = URL.createObjectURL(
+          new Blob([blob], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          })
+        );
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; a.click();
+        URL.revokeObjectURL(url);
+      }
       return;
     }
   } catch(e) {

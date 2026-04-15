@@ -7,7 +7,7 @@ this version manipulates the xlsx XML directly so the output is
 byte-for-byte identical to the company template except for filled cells.
 """
 
-import io, os, re, zipfile, datetime, json
+import io, os, re, zipfile, datetime, json, tempfile, subprocess, shutil
 import xml.etree.ElementTree as ET
 from flask import Flask, request, Response
 from flask_cors import CORS
@@ -434,6 +434,43 @@ def fill_template(data):
     return result_buf
 
 
+def xlsx_to_pdf(xlsx_bytes):
+    """Convert xlsx bytes to PDF using LibreOffice headless."""
+    tmpdir = tempfile.mkdtemp()
+    try:
+        xlsx_path = os.path.join(tmpdir, 'order.xlsx')
+        with open(xlsx_path, 'wb') as f:
+            f.write(xlsx_bytes)
+
+        result = subprocess.run(
+            ['libreoffice', '--headless', '--calc',
+             '--convert-to', 'pdf', '--outdir', tmpdir, xlsx_path],
+            capture_output=True, text=True, timeout=60,
+            env={**os.environ, 'HOME': tmpdir}   # avoid lock conflicts
+        )
+
+        pdf_path = os.path.join(tmpdir, 'order.pdf')
+        if os.path.exists(pdf_path):
+            with open(pdf_path, 'rb') as f:
+                return f.read()
+        return None
+    except Exception:
+        return None
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+
+def pack_zip(xlsx_bytes, pdf_bytes, xlsx_name, pdf_name):
+    """Pack xlsx + pdf into a single zip for download."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(xlsx_name, xlsx_bytes)
+        if pdf_bytes:
+            zf.writestr(pdf_name, pdf_bytes)
+    buf.seek(0)
+    return buf
+
+
 # ── Flask routes ─────────────────────────────────────────────────────
 
 @app.route('/ping')
@@ -451,19 +488,41 @@ def export():
 
     fname    = data.get('lname') or data.get('fname') or 'Order'
     date_str = (data.get('date') or '').replace('/', '').replace('-', '') or 'nodate'
-    filename = f"Univet_Order_{fname}_{date_str}.xlsx"
+    base     = f"Univet_Order_{fname}_{date_str}"
+    xlsx_name = f"{base}.xlsx"
+    pdf_name  = f"{base}.pdf"
 
     xlsx_bytes = buf.read()
-    return Response(
-        xlsx_bytes,
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        headers={
-            'Content-Disposition': f'attachment; filename="{filename}"',
-            'Content-Length': str(len(xlsx_bytes)),
-            'X-Content-Type-Options': 'nosniff',
-            'Cache-Control': 'no-transform, no-store',
-        }
-    )
+
+    # Try PDF conversion
+    pdf_bytes = xlsx_to_pdf(xlsx_bytes)
+
+    if pdf_bytes:
+        # Return zip containing both xlsx + pdf
+        zip_buf = pack_zip(xlsx_bytes, pdf_bytes, xlsx_name, pdf_name)
+        zip_data = zip_buf.read()
+        return Response(
+            zip_data,
+            mimetype='application/zip',
+            headers={
+                'Content-Disposition': f'attachment; filename="{base}.zip"',
+                'Content-Length': str(len(zip_data)),
+                'X-Content-Type-Options': 'nosniff',
+                'Cache-Control': 'no-transform, no-store',
+            }
+        )
+    else:
+        # PDF conversion failed — return xlsx only
+        return Response(
+            xlsx_bytes,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={
+                'Content-Disposition': f'attachment; filename="{xlsx_name}"',
+                'Content-Length': str(len(xlsx_bytes)),
+                'X-Content-Type-Options': 'nosniff',
+                'Cache-Control': 'no-transform, no-store',
+            }
+        )
 
 
 if __name__ == '__main__':
