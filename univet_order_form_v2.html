@@ -885,28 +885,28 @@
               <td class="row-label" data-i18n="dist">Distance</td>
               <td><input type="number" id="rx_od_dist_sph" step="0.25" placeholder="0.00" oninput="onRxChange()"></td>
               <td><input type="number" id="rx_od_dist_cyl" step="0.25" placeholder="0.00" oninput="onRxChange()" onblur="checkCylAxis('rx_od_dist_cyl','rx_od_dist_axis')"></td>
-              <td><input type="number" id="rx_od_dist_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_od_dist_axis" step="1" min="0" max="360" placeholder="—"></td>
               <td><input type="number" id="rx_os_dist_sph" step="0.25" placeholder="0.00" oninput="onRxChange()"></td>
               <td><input type="number" id="rx_os_dist_cyl" step="0.25" placeholder="0.00" oninput="onRxChange()" onblur="checkCylAxis('rx_os_dist_cyl','rx_os_dist_axis')"></td>
-              <td><input type="number" id="rx_os_dist_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_os_dist_axis" step="1" min="0" max="360" placeholder="—"></td>
             </tr>
             <tr>
               <td class="row-label" data-i18n="inter">Intermediate</td>
               <td><input type="number" id="rx_od_int_sph" step="0.25" placeholder="—" oninput="onRxChange()"></td>
               <td><input type="number" id="rx_od_int_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_od_int_cyl','rx_od_int_axis')"></td>
-              <td><input type="number" id="rx_od_int_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_od_int_axis" step="1" min="0" max="360" placeholder="—"></td>
               <td><input type="number" id="rx_os_int_sph" step="0.25" placeholder="—" oninput="onRxChange()"></td>
               <td><input type="number" id="rx_os_int_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_os_int_cyl','rx_os_int_axis')"></td>
-              <td><input type="number" id="rx_os_int_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_os_int_axis" step="1" min="0" max="360" placeholder="—"></td>
             </tr>
             <tr class="highlight-row">
               <td class="row-label" data-i18n="read">Reading</td>
               <td><input type="number" id="rx_od_read_sph" step="0.25" placeholder="—" oninput="onRxChange();autoFillReadingCyl('od')"></td>
               <td><input type="number" id="rx_od_read_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_od_read_cyl','rx_od_read_axis')"></td>
-              <td><input type="number" id="rx_od_read_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_od_read_axis" step="1" min="0" max="360" placeholder="—"></td>
               <td><input type="number" id="rx_os_read_sph" step="0.25" placeholder="—" oninput="onRxChange();autoFillReadingCyl('os')"></td>
               <td><input type="number" id="rx_os_read_cyl" step="0.25" placeholder="—" oninput="onRxChange()" onblur="checkCylAxis('rx_os_read_cyl','rx_os_read_axis')"></td>
-              <td><input type="number" id="rx_os_read_axis" step="1" min="0" max="180" placeholder="—"></td>
+              <td><input type="number" id="rx_os_read_axis" step="1" min="0" max="360" placeholder="—"></td>
             </tr>
             <tr>
               <td class="row-label" data-i18n="add">ADD</td>
@@ -1346,28 +1346,31 @@ function roundQ(v) {
 function lookupFeasibility(tableKey, sph, cyl) {
   const table = RX_TABLES[tableKey];
   if (!table) return null;
-  
+
   const sphR = roundQ(sph);
   const cylR = roundQ(cyl);
-  
-  // Find key - try exact match first, then nearest
-  let key = String(sphR);
-  // Handle -0 edge case
-  if (sphR === 0) key = '0.0';
-  
+
+  // Format key to match table (always include decimal: "-1.0", "0.0", "2.25")
+  function fmtKey(v) {
+    if (v === 0 || Object.is(v, -0)) return '0.0';
+    // If integer, add .0; otherwise String() is fine (e.g. -0.75 → "-0.75")
+    return v % 1 === 0 ? v.toFixed(1) : String(v);
+  }
+
+  let key = fmtKey(sphR);
   const limits = table[key];
   if (!limits) {
     // Try nearby keys (±0.125 tolerance for rounding)
     const allKeys = Object.keys(table).map(Number);
     const nearest = allKeys.reduce((a, b) => Math.abs(b - sphR) < Math.abs(a - sphR) ? b : a);
     if (Math.abs(nearest - sphR) <= 0.15) {
-      const nearLimits = table[String(nearest)];
+      const nearLimits = table[fmtKey(nearest)];
       if (!nearLimits) return false;
       return cylR >= nearLimits[0] && cylR <= nearLimits[1];
     }
     return false; // SPH out of range
   }
-  
+
   return cylR >= limits[0] && cylR <= limits[1];
 }
 
@@ -1431,6 +1434,19 @@ function checkFrameOpticCompat() {
     return;
   }
 
+  // Look & Cool: max 3.0x magnification
+  const lookCool = ['Look', 'Cool'];
+  if (lookCool.includes(frame)) {
+    const magNum = parseFloat(mag);
+    if (magNum > 3.0) {
+      warnEl.style.display = 'block';
+      warnEl.innerHTML = zh
+        ? `⚠ <strong>${frame}</strong> 鏡架最高僅支援 <strong>3.0x</strong> 倍率，目前選擇的 <strong>${mag}</strong> 超出限制。`
+        : `⚠ <strong>${frame}</strong> frame supports up to <strong>3.0x</strong> magnification only. Selected <strong>${mag}</strong> exceeds the limit.`;
+      return;
+    }
+  }
+
   // Check Galilean 600mm rule
   if (type === 'Galilean' && wdNum >= 600) {
     if (mag !== '2.5x' && mag !== '3.0x') {
@@ -1474,7 +1490,16 @@ function updateOpticRowVisibility() {
       reason = 'frame_type';
     }
 
-    // Rule 2: Galilean 600mm → only 2.5x & 3.0x, and only ITA/ONE frames
+    // Rule 2: Look & Cool → max 3.0x
+    if (!disabled && ['Look', 'Cool'].includes(frame)) {
+      const magNum = parseFloat(mag);
+      if (magNum > 3.0) {
+        disabled = true;
+        reason = 'look_cool_max30';
+      }
+    }
+
+    // Rule 3: Galilean 600mm → only 2.5x & 3.0x, and only ITA/ONE frames
     if (!disabled && type === 'Galilean' && wd >= 600) {
       if (mag !== '2.5x' && mag !== '3.0x') {
         disabled = true;
